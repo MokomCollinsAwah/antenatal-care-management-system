@@ -28,13 +28,23 @@ Foundation and authentication setup. The project currently provides:
 - JWT sessions and role-based route protection
 - Role-aware dashboard navigation and patient portal routing
 - Seeded test users for all three roles
+- Admin health centre creation, editing, detail views, and worker counts
+- Health worker account creation, search, filtering, and health centre assignment
+- Health worker activation, suspension, and secure password reset
+- Audit logging for health centre and health worker administration
+- Patient registration with linked pregnant-woman user accounts
+- Antenatal profile list, details, editing, and scoped health-worker access
+- Pregnant woman portal profile summary
+- Appointment scheduling, filtering, detail views, and status updates
+- Missed appointment tracking through the appointment status filter
+- Visit records created from attended appointments
+- Patient details and portal pages now show appointments and visits
 
-CRUD operations, reporting, and clinical business workflows are intentionally
-not implemented yet.
+Supplements, scans, reminders, follow-ups, reporting, and dashboard real
+statistics are intentionally not implemented yet.
 
 ## Planned Features
 
-- Role-based authentication for administrators, health workers, and pregnant women
 - Health centre and user administration
 - Patient profile registration and care assignment
 - Appointment, visit, supplement, scan, reminder, and follow-up workflows
@@ -112,6 +122,49 @@ Role routing:
 Dashboard routes require an active admin or health worker session. Admin pages
 are restricted to administrators, and the patient portal is restricted to
 pregnant women.
+
+## Admin Module
+
+After seeding, sign in as the administrator and use:
+
+- `/admin/health-centres` to create, view, and edit health centres
+- `/admin/users` to search and filter users
+- `/admin/users/new` to create health worker accounts
+- User detail pages to edit assignments, activate or suspend workers, and reset passwords
+
+Admin mutations are validated server-side and recorded in the audit log.
+Health worker passwords are hashed and never returned to the browser.
+
+## Patient Registration
+
+Admins and health workers can use `/patients` to manage pregnant women
+registered for antenatal care.
+
+- `/patients` lists patient profiles with search and filters
+- `/patients/new` creates a pregnant-woman user account and linked antenatal profile
+- `/patients/[id]` shows account, personal, and antenatal profile details
+- `/patients/[id]/edit` updates safe account and profile fields
+- `/portal` shows the logged-in pregnant woman's profile summary when available
+
+Patient registration creates audit logs and hashes the temporary password.
+Health workers can only manage patients in their authorized scope. Pregnant
+women cannot access `/patients` routes.
+
+## Appointments And Visits
+
+Admins and health workers can use `/appointments` to schedule and manage
+appointments.
+
+- `/appointments/new` schedules an appointment for an authorized patient
+- `/appointments/[id]` shows appointment details and valid status actions
+- `/appointments?status=MISSED` shows missed appointments
+- `/visits/new?appointmentId=...` records a visit and marks the appointment attended
+- `/visits` lists visit records for authorized patients
+
+Creating a visit can optionally create the next antenatal appointment. Appointment
+and visit actions create audit logs. Pregnant women cannot access appointment or
+visit management pages, but their portal shows upcoming appointments, recent
+visits, and missed appointment warnings.
 
 ## Quality Commands
 
