@@ -116,7 +116,7 @@ export async function updateHealthCentre(
       },
       ...(input.phone ? {} : { $unset: { phone: 1 } }),
     },
-    { new: true },
+    { returnDocument: "after" },
   );
 }
 

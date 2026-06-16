@@ -15,7 +15,7 @@ export function PatientSearchFilters({
   showAssignmentFilters: boolean;
 }) {
   return (
-    <form className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_180px_180px_180px_180px_auto]">
+    <form className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
       <Input
         name="search"
         defaultValue={filters.search}
@@ -54,7 +54,7 @@ export function PatientSearchFilters({
       />
       <button
         type="submit"
-        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
       >
         <Search className="size-4" />
         Filter

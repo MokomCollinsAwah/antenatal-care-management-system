@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { type PipelineStage, Types } from "mongoose";
 import { connectDB } from "@/lib/db";
 import AuditLog from "@/models/AuditLog";
 import User from "@/models/User";
@@ -40,7 +40,7 @@ export async function findAuditLogs(filters: AuditLogFilters) {
       ...(filters.endDate ? { $lte: new Date(filters.endDate) } : {}),
     };
   }
-  const pipeline: Record<string, unknown>[] = [
+  const pipeline: PipelineStage[] = [
     { $match: match },
     {
       $lookup: {

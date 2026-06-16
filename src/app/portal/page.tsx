@@ -18,9 +18,11 @@ import { AppointmentStatus, ReminderStatus, SupplementStatus } from "@/lib/const
 import { requireRole } from "@/lib/auth-utils";
 import { UserRole } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
+import { runDashboardMaintenance } from "@/server/services/systemMaintenanceService";
 
 export default async function PortalPage() {
   const user = await requireRole([UserRole.PREGNANT_WOMAN]);
+  await runDashboardMaintenance();
   const profile = await getCurrentPortalPatientProfile(user.id);
   const [appointments, visits, supplements, scans, followUps, reminders] = profile
     ? await Promise.all([
@@ -66,7 +68,7 @@ export default async function PortalPage() {
           title="My Antenatal Care"
           description="View your antenatal care profile and upcoming care information."
         />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {portalStats.map((stat) => (
             <StatCard key={stat.title} {...stat} />
           ))}

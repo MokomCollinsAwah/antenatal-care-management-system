@@ -6,8 +6,8 @@ import type { VisitSummary } from "@/types";
 export function VisitTable({ visits }: { visits: VisitSummary[] }) {
   if (visits.length === 0) return <EmptyState title="No visit records found" description="Visit records will appear after appointments are marked attended." />;
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+    <div className="w-full overflow-x-auto">
+      <table className="w-full min-w-max divide-y divide-slate-200 text-left text-sm">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
             <th className="px-5 py-3">Patient</th>

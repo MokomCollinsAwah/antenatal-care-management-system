@@ -8,7 +8,7 @@ export function LogoutButton({ compact = false }: { compact?: boolean }) {
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="danger"
       size="sm"
       className={compact ? "size-9 px-0" : undefined}
       onClick={() => signOut({ callbackUrl: "/login" })}

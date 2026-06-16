@@ -1,197 +1,183 @@
 # Antenatal Care Management System
 
-A production-oriented foundation for coordinating antenatal care records,
-appointments, visits, supplements, scans, reminders, and follow-ups.
+A secure MVP for coordinating antenatal care at health-centre level. It supports
+patient registration, appointments, visits, supplements, scans, follow-ups,
+in-system reminders, dashboard statistics, reports, and audit logs.
+
+## Core Features
+
+- Credentials login with phone number or email
+- JWT sessions with role-based route protection
+- Admin management for health centres and health workers
+- Patient registration with linked pregnant-woman accounts
+- Scoped patient access for health workers
+- Appointment scheduling and status management
+- Visit records linked to attended appointments
+- Supplement, scan, and follow-up records
+- In-system reminders with read/dismiss workflows
+- Pregnant woman portal for own care records
+- Dashboard statistics and recent activity
+- Reports for appointments, follow-ups, supplements, and scans
+- Admin-only audit log viewer
+- Automatic missed appointment checker
+- Automatic due reminder checker
+- Responsive dashboard with collapsible sidebar
 
 ## Tech Stack
 
-- Next.js App Router
-- TypeScript with strict mode
+- Next.js 16 App Router
+- TypeScript
 - Tailwind CSS
 - MongoDB and Mongoose
-- Zod
-- bcryptjs
+- Auth.js credentials authentication
+- Zod validation
 - React Hook Form
+- bcryptjs password hashing
 - ESLint
 
-## Current Progress
+## Project Structure
 
-Foundation and authentication setup. The project currently provides:
+```text
+src/
+  app/          App Router pages, layouts, loading, error, and not-found states
+  components/   Shared UI and layout components
+  features/     Feature-specific actions, queries, and components
+  lib/          Auth, DB, validation, permissions, constants, utilities
+  models/       Mongoose models
+  server/       Repositories and services
+  types/        Shared TypeScript types
+scripts/
+  seed.ts       Idempotent demo data seed
+```
 
-- Responsive landing, login, dashboard, and patient portal layouts
-- Reusable UI components and dashboard navigation
-- Shared domain enums, types, permission helpers, and validation schemas
-- Cached MongoDB connection utility
-- Mongoose models and indexes for the planned data model
-- Protected routes for the implemented clinical workflows
-- Credentials login with phone number or email
-- JWT sessions and role-based route protection
-- Role-aware dashboard navigation and patient portal routing
-- Seeded test users for all three roles
-- Admin health centre creation, editing, detail views, and worker counts
-- Health worker account creation, search, filtering, and health centre assignment
-- Health worker activation, suspension, and secure password reset
-- Audit logging for health centre and health worker administration
-- Patient registration with linked pregnant-woman user accounts
-- Antenatal profile list, details, editing, and scoped health-worker access
-- Pregnant woman portal profile summary
-- Appointment scheduling, filtering, detail views, and status updates
-- Missed appointment tracking through the appointment status filter
-- Visit records created from attended appointments
-- Patient details and portal pages now show appointments and visits
-- Supplement record creation, filtering, and patient reminder creation
-- Scan record creation, filtering, and next-scan reminder creation
-- Follow-up record creation, including missed appointment follow-ups
-- In-system reminder listing and status updates
-- Patient details now show appointments, visits, supplements, scans, follow-ups, and reminders
-- Pregnant woman portal now shows owned supplements, scans, follow-ups, and reminders
+## Environment Variables
 
-Dashboard real statistics and report calculations are intentionally planned for
-a later prompt.
+Copy `.env.example` to `.env.local` and update values locally:
 
-## Planned Features
+```env
+MONGODB_URI=mongodb://localhost:27017/antenatal-care-management-system
+AUTH_SECRET=replace-with-secure-secret
+NEXTAUTH_SECRET=replace-with-secure-secret
+NEXTAUTH_URL=http://localhost:3000
+AUTH_TRUST_HOST=true
+APP_NAME="Antenatal Care Management System"
+```
 
-- Health centre and user administration
-- Patient profile registration and care assignment
-- Appointment, visit, supplement, scan, reminder, and follow-up workflows
-- Patient self-service portal
-- Operational reports and audit history
+Never commit `.env.local` or real database credentials.
 
-## Setup
+For MongoDB Atlas, put the full Atlas connection string only in `.env.local`.
+Keep `.env.example` as placeholders only.
 
-### Prerequisites
+## Local Setup
 
-- Node.js 20 or later
-- npm
-- Docker Desktop, or a separately managed MongoDB instance
-
-### Install dependencies
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### Configure environment variables
-
-Copy `.env.example` to `.env.local` and update secrets as appropriate:
-
-```env
-MONGODB_URI=mongodb://localhost:27017/antenatal-care-management
-NEXTAUTH_SECRET=replace-with-secure-secret
-NEXTAUTH_URL=http://localhost:3000
-APP_NAME="Antenatal Care Management System"
-```
-
-Use a strong, unique `NEXTAUTH_SECRET` outside local development.
-
-### Start MongoDB with Docker
+Start local MongoDB with Docker:
 
 ```bash
 docker compose up -d
 ```
 
-The MongoDB container is exposed on port `27017` and stores data in the
-`mongodb_data` Docker volume.
-
-### Start development
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-### Seed authentication users
-
-With MongoDB running and `.env.local` configured:
+Seed demo data:
 
 ```bash
 npm run seed
 ```
 
-The seed is idempotent and can be run more than once.
+Start development:
 
-## Test Login Credentials
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Demo Login Credentials
 
 | Role | Phone | Email | Password |
 | --- | --- | --- | --- |
 | Admin | `670000001` | `admin@anc.local` | `Admin123!` |
 | Health Worker | `670000002` | `worker@anc.local` | `Worker123!` |
-| Pregnant Woman | `670000003` | `patient@anc.local` | `Patient123!` |
+| Pregnant Woman 1 | `670000003` | `patient@anc.local` | `Patient123!` |
+| Pregnant Woman 2 | `670000004` | `patient2@anc.local` | `Patient123!` |
 
-Role routing:
+Default routing:
 
 - Admin -> `/dashboard`
 - Health Worker -> `/dashboard`
 - Pregnant Woman -> `/portal`
 
-Dashboard routes require an active admin or health worker session. Admin pages
-are restricted to administrators, and the patient portal is restricted to
-pregnant women.
+## Role Permissions
 
-## Admin Module
+Admin:
 
-After seeding, sign in as the administrator and use:
+- Manage health centres
+- Manage health workers
+- Register and manage patients
+- Manage appointments, visits, supplements, scans, follow-ups, and reminders
+- View dashboard, reports, and audit logs
 
-- `/admin/health-centres` to create, view, and edit health centres
-- `/admin/users` to search and filter users
-- `/admin/users/new` to create health worker accounts
-- User detail pages to edit assignments, activate or suspend workers, and reset passwords
+Health Worker:
 
-Admin mutations are validated server-side and recorded in the audit log.
-Health worker passwords are hashed and never returned to the browser.
+- Manage authorized patients only
+- Manage appointments, visits, supplements, scans, follow-ups, and reminders for authorized patients
+- View scoped dashboard and reports
+- Cannot access admin-only pages
 
-## Patient Registration
+Pregnant Woman:
 
-Admins and health workers can use `/patients` to manage pregnant women
-registered for antenatal care.
+- Access `/portal` only
+- View own profile, appointments, visits, supplements, scans, follow-ups, and reminders
+- Mark own reminders as read or dismissed
+- Cannot create or edit staff-managed medical records
 
-- `/patients` lists patient profiles with search and filters
-- `/patients/new` creates a pregnant-woman user account and linked antenatal profile
-- `/patients/[id]` shows account, personal, and antenatal profile details
-- `/patients/[id]/edit` updates safe account and profile fields
-- `/portal` shows the logged-in pregnant woman's profile summary when available
+## Main Workflows
 
-Patient registration creates audit logs and hashes the temporary password.
-Health workers can only manage patients in their authorized scope. Pregnant
-women cannot access `/patients` routes.
+Admin workflow:
 
-## Appointments And Visits
+1. Login as admin.
+2. View dashboard.
+3. Create health centres and health workers.
+4. Register pregnant women.
+5. Schedule and manage appointments.
+6. View reports and audit logs.
 
-Admins and health workers can use `/appointments` to schedule and manage
-appointments.
+Health worker workflow:
 
-- `/appointments/new` schedules an appointment for an authorized patient
-- `/appointments/[id]` shows appointment details and valid status actions
-- `/appointments?status=MISSED` shows missed appointments
-- `/visits/new?appointmentId=...` records a visit and marks the appointment attended
-- `/visits` lists visit records for authorized patients
+1. Login as health worker.
+2. View scoped dashboard.
+3. Register pregnant women in authorized scope.
+4. Schedule appointments.
+5. Record visits.
+6. Add supplements, scans, and follow-ups.
+7. Review reminders and scoped reports.
 
-Creating a visit can optionally create the next antenatal appointment. Appointment
-and visit actions create audit logs. Pregnant women cannot access appointment or
-visit management pages, but their portal shows upcoming appointments, recent
-visits, and missed appointment warnings.
+Pregnant woman workflow:
 
-## Clinical Support Records
+1. Login as pregnant woman.
+2. View portal profile summary.
+3. View upcoming appointments, recent visits, supplements, scans, follow-ups, and reminders.
+4. Mark own reminders as read or dismissed.
 
-Admins and health workers can manage clinical support records for authorized
-patients:
+## Demo Seed Data
 
-- `/supplements` lists supplement records with search, status, and centre filters
-- `/supplements/new` records a supplement plan and creates an in-system reminder
-- `/scans` lists scan records with search, centre, and date filters
-- `/scans/new` records scan information and can create a next-scan reminder
-- `/follow-ups` lists follow-up records with method, outcome, and centre filters
-- `/follow-ups/new` creates a follow-up record
-- `/follow-ups/new?appointmentId=...` preloads the patient from a missed appointment
-- `/reminders` lists in-system reminders and supports valid status transitions
+`npm run seed` is idempotent. It creates or updates:
 
-Pregnant women cannot access staff clinical pages. Their `/portal` view shows
-only their own active supplements, upcoming scans, follow-ups, and unread or due
-reminders. They can mark their own reminders as read or dismissed.
-
-Clinical support actions create audit logs for supplement creation, scan
-creation, follow-up creation, and reminder status changes.
+- One admin user
+- One health centre
+- One health worker
+- Two pregnant women and patient profiles
+- Upcoming, attended, and missed appointments
+- A visit record
+- An active supplement record
+- A scan record with next scan date
+- A follow-up linked to the missed appointment
+- Pending and due reminders
+- Demo audit logs
 
 ## Quality Commands
 
@@ -201,24 +187,29 @@ npx tsc --noEmit
 npm run build
 ```
 
-## Project Structure
+## Security Notes
 
-```text
-src/
-  app/                 App Router pages and route groups
-  components/          Reusable UI, layout, and dashboard components
-  features/            Feature ownership boundaries for later workflows
-  lib/                 Database, validation, permission, and utility modules
-  models/              Mongoose domain models
-  server/              Server actions, repositories, and services
-  types/               Shared TypeScript types
-```
+- Never commit `.env.local` or real database credentials.
+- `.env.example` must contain placeholders only.
+- Passwords are hashed with bcryptjs.
+- `passwordHash` is excluded from normal user queries and session data.
+- Admin pages are server-side protected.
+- Health worker data is scoped by authorized patient access.
+- Pregnant woman portal data is scoped to the logged-in patient profile.
+- Audit logs are admin-only and read-only.
+
+## MVP Status
+
+This MVP is ready for demonstration with local MongoDB or MongoDB Atlas.
 
 ## Limitations
 
-- Does not diagnose pregnancy complications
-- Does not replace health workers or professional medical judgment
-- Does not manage delivery operations
-- Does not manage billing
-- Does not include SMS or email reminders in the MVP
-- Does not include report calculations or dashboard real statistics yet
+- No SMS reminders in this MVP.
+- No email reminders in this MVP.
+- No PDF export in this MVP.
+- No billing.
+- No laboratory management.
+- No pharmacy stock management.
+- No delivery room management.
+- No diagnosis logic.
+- The system supports health workers but does not replace professional medical judgment.

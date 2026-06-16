@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
+import { Pagination } from "@/components/ui/Pagination";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { HealthCentreTable } from "@/features/admin/health-centres/components/HealthCentreTable";
 import { getHealthCentres } from "@/features/admin/health-centres/queries";
+import { getPageNumber, paginate } from "@/lib/pagination";
 
-export default async function HealthCentresPage() {
+export default async function HealthCentresPage({ searchParams }: { searchParams: Promise<{ page?: string | string[] }> }) {
+  const params = await searchParams;
   const healthCentres = await getHealthCentres();
+  const page = paginate(healthCentres, getPageNumber(params.page));
 
   return (
     <div className="space-y-6">
@@ -25,7 +29,8 @@ export default async function HealthCentresPage() {
       />
       <Card>
         <CardContent className="p-0">
-          <HealthCentreTable healthCentres={healthCentres} />
+          <HealthCentreTable healthCentres={page.items} />
+          <Pagination {...page} searchParams={params} />
         </CardContent>
       </Card>
     </div>

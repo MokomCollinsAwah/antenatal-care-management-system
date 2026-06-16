@@ -1,19 +1,26 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
+import { Pagination } from "@/components/ui/Pagination";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { AppointmentFilters } from "@/features/appointments/components/AppointmentFilters";
 import { AppointmentTable } from "@/features/appointments/components/AppointmentTable";
 import { getAppointments } from "@/features/appointments/queries";
 import { getHealthCentresForSelect } from "@/features/admin/health-centres/queries";
+import { runMissedAppointmentChecker } from "@/server/services/systemMaintenanceService";
+import { getPageNumber, paginate } from "@/lib/pagination";
 import type { AppointmentListFilters } from "@/types";
 
-export default async function AppointmentsPage({ searchParams }: { searchParams: Promise<AppointmentListFilters> }) {
+type AppointmentSearchParams = AppointmentListFilters & { page?: string | string[] };
+
+export default async function AppointmentsPage({ searchParams }: { searchParams: Promise<AppointmentSearchParams> }) {
+  await runMissedAppointmentChecker();
   const filters = await searchParams;
   const [appointments, healthCentres] = await Promise.all([
     getAppointments(filters),
     getHealthCentresForSelect(),
   ]);
+  const page = paginate(appointments, getPageNumber(filters.page));
   return (
     <div className="space-y-6">
       <PageHeader
@@ -27,7 +34,7 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
         }
       />
       <Card><CardContent className="pt-6"><AppointmentFilters filters={filters} healthCentres={healthCentres} /></CardContent></Card>
-      <Card><CardContent className="p-0"><AppointmentTable appointments={appointments} /></CardContent></Card>
+      <Card><CardContent className="p-0"><AppointmentTable appointments={page.items} /><Pagination {...page} searchParams={filters} /></CardContent></Card>
     </div>
   );
 }

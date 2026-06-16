@@ -12,10 +12,15 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, user }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Sidebar role={user.role} />
+      <Sidebar
+        role={user.role}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={() => setSidebarCollapsed((value) => !value)}
+      />
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <button
@@ -33,9 +38,15 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
           </div>
         </div>
       )}
-      <div className="lg:pl-72">
+      <div
+        className={
+          sidebarCollapsed
+            ? "min-w-0 overflow-x-hidden lg:pl-20"
+            : "min-w-0 overflow-x-hidden lg:pl-72"
+        }
+      >
         <Topbar user={user} onMenuClick={() => setMobileOpen(true)} />
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

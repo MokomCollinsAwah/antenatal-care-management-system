@@ -1,6 +1,6 @@
 import { AppointmentStatus, SupplementStatus } from "@/lib/constants";
 import { listAppointmentsForUser, type CurrentCareUser } from "@/server/services/appointmentService";
-import { listFollowUps, listScans, listSupplements } from "@/server/services/clinicalSupportService";
+import { listFollowUps, listReminders, listScans, listSupplements } from "@/server/services/clinicalSupportService";
 import { listPatientsForUser } from "@/server/services/patientService";
 import { listVisitsForUser } from "@/server/services/visitService";
 import type { AppointmentListFilters, ClinicalRecordFilters, ReportFilters, VisitListFilters } from "@/types";

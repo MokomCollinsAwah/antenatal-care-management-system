@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { Pagination } from "@/components/ui/Pagination";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
 import { UserTable } from "@/features/admin/users/components/UserTable";
@@ -12,12 +13,14 @@ import {
   UserRole,
   UserStatus,
 } from "@/lib/constants";
+import { getPageNumber, paginate } from "@/lib/pagination";
 
 interface UsersPageProps {
   searchParams: Promise<{
     search?: string;
     role?: string;
     status?: string;
+    page?: string | string[];
   }>;
 }
 
@@ -36,6 +39,7 @@ export default async function AdminUsersPage({
     role,
     status,
   });
+  const page = paginate(users, getPageNumber(params.page));
 
   return (
     <div className="space-y-6">
@@ -54,7 +58,7 @@ export default async function AdminUsersPage({
       />
       <Card>
         <CardContent className="pt-6">
-          <form className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px_220px_auto]">
+          <form className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
             <Input
               name="search"
               defaultValue={params.search}
@@ -77,7 +81,7 @@ export default async function AdminUsersPage({
             />
             <button
               type="submit"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               <Search className="size-4" />
               Filter
@@ -87,7 +91,8 @@ export default async function AdminUsersPage({
       </Card>
       <Card>
         <CardContent className="p-0">
-          <UserTable users={users} />
+          <UserTable users={page.items} />
+          <Pagination {...page} searchParams={params} />
         </CardContent>
       </Card>
     </div>

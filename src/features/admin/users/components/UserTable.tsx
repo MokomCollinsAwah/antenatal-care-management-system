@@ -17,8 +17,8 @@ export function UserTable({ users }: { users: AdminUserSummary[] }) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+    <div className="w-full overflow-x-auto">
+      <table className="w-full min-w-max divide-y divide-slate-200 text-left text-sm">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
             <th className="px-5 py-3">Full Name</th>

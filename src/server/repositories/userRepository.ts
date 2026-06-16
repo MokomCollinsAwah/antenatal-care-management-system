@@ -171,7 +171,7 @@ export async function updateHealthWorker(
       },
       ...(input.email ? {} : { $unset: { email: 1 } }),
     },
-    { new: true },
+    { returnDocument: "after" },
   );
 }
 
@@ -180,7 +180,7 @@ export async function updateUserStatus(id: string, status: UserStatusValue) {
   return User.findOneAndUpdate(
     { _id: id, role: UserRole.HEALTH_WORKER },
     { $set: { status } },
-    { new: true },
+    { returnDocument: "after" },
   );
 }
 
@@ -189,6 +189,6 @@ export async function updateUserPassword(id: string, passwordHash: string) {
   return User.findOneAndUpdate(
     { _id: id, role: UserRole.HEALTH_WORKER },
     { $set: { passwordHash } },
-    { new: true },
+    { returnDocument: "after" },
   );
 }
