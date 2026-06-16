@@ -12,7 +12,7 @@ export function RecentMissedAppointments({ appointments }: { appointments: Appoi
         {appointments.length ? (
           <div className="space-y-3">
             {appointments.map((appointment) => (
-              <div key={appointment.id} className="rounded-lg border border-red-100 bg-red-50/50 p-3">
+              <div key={appointment.id} className="rounded-lg border border-slate-200 p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="font-semibold text-slate-900">{appointment.patientName}</p>
