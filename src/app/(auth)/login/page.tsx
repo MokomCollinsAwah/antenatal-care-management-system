@@ -4,6 +4,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { Card, CardContent } from "@/components/ui/Card";
 
 export const metadata = { title: "Login" };
+export const dynamic = "force-dynamic";
 
 interface LoginPageProps {
   searchParams: Promise<{ callbackUrl?: string }>;

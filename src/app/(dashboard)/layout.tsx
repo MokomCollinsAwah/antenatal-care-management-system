@@ -3,6 +3,8 @@ import { DashboardShell } from "@/components/layout/DashboardShell";
 import { UserRole } from "@/lib/constants";
 import { requireRole } from "@/lib/auth-utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: {

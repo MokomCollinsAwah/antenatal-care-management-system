@@ -20,6 +20,8 @@ import { UserRole } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { runDashboardMaintenance } from "@/server/services/systemMaintenanceService";
 
+export const dynamic = "force-dynamic";
+
 export default async function PortalPage() {
   const user = await requireRole([UserRole.PREGNANT_WOMAN]);
   await runDashboardMaintenance();
