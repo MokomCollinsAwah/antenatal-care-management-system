@@ -224,3 +224,31 @@ export const updateReminderStatusSchema = z.object({
     ReminderStatus.DISMISSED,
   ]),
 });
+
+const dateRangeValid = (data: { startDate?: Date; endDate?: Date }) =>
+  !data.startDate || !data.endDate || data.endDate >= data.startDate;
+
+export const reportFilterSchema = z
+  .object({
+    startDate: optionalDate,
+    endDate: optionalDate,
+    healthCentreId: optionalText,
+    status: optionalText,
+  })
+  .refine(dateRangeValid, {
+    message: "End date must be after or equal to start date",
+    path: ["endDate"],
+  });
+
+export const auditLogFilterSchema = z
+  .object({
+    action: optionalText,
+    entityType: optionalText,
+    startDate: optionalDate,
+    endDate: optionalDate,
+    search: optionalText,
+  })
+  .refine(dateRangeValid, {
+    message: "End date must be after or equal to start date",
+    path: ["endDate"],
+  });

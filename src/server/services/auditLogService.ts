@@ -1,7 +1,7 @@
 import { createAuditLog } from "@/server/repositories/auditLogRepository";
 
 export async function recordAdminAudit(input: {
-  actorId: string;
+  actorId?: string;
   action: string;
   entityType:
     | "HealthCentre"

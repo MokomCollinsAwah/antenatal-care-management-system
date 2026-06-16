@@ -250,3 +250,29 @@ export interface ReminderSummary {
   status: ReminderStatus;
   createdAt: string;
 }
+
+export interface ReportFilters {
+  startDate?: string;
+  endDate?: string;
+  healthCentreId?: string;
+  status?: string;
+}
+
+export interface AuditLogFilters {
+  action?: string;
+  entityType?: string;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+}
+
+export interface AuditLogSummary {
+  id: string;
+  actorName: string;
+  action: string;
+  entityType: string;
+  entityId?: string;
+  description?: string;
+  ipAddress?: string;
+  createdAt: string;
+}
