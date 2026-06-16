@@ -22,6 +22,8 @@ in-system reminders, dashboard statistics, reports, and audit logs.
 - Automatic missed appointment checker
 - Automatic due reminder checker
 - Responsive dashboard with collapsible sidebar
+- Mobile-friendly table layouts
+- Show/hide password toggle on login
 
 ## Tech Stack
 
@@ -39,7 +41,7 @@ in-system reminders, dashboard statistics, reports, and audit logs.
 
 ```text
 src/
-  app/          App Router pages, layouts, loading, error, and not-found states
+  app/          App Router pages, layouts, error, and not-found states
   components/   Shared UI and layout components
   features/     Feature-specific actions, queries, and components
   lib/          Auth, DB, validation, permissions, constants, utilities
@@ -58,6 +60,7 @@ Copy `.env.example` to `.env.local` and update values locally:
 MONGODB_URI=mongodb://localhost:27017/antenatal-care-management-system
 AUTH_SECRET=replace-with-secure-secret
 NEXTAUTH_SECRET=replace-with-secure-secret
+AUTH_URL=http://localhost:3000
 NEXTAUTH_URL=http://localhost:3000
 AUTH_TRUST_HOST=true
 APP_NAME="Antenatal Care Management System"
@@ -67,6 +70,41 @@ Never commit `.env.local` or real database credentials.
 
 For MongoDB Atlas, put the full Atlas connection string only in `.env.local`.
 Keep `.env.example` as placeholders only.
+
+Generate a strong auth secret with:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+Use the same generated value for `AUTH_SECRET` and `NEXTAUTH_SECRET`.
+
+## Production Deployment
+
+For Vercel or any production host, do not use `localhost` values. Set production
+environment variables in the hosting dashboard and redeploy:
+
+```env
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<database-name>
+AUTH_SECRET=<strong-random-secret>
+NEXTAUTH_SECRET=<same-strong-random-secret>
+AUTH_URL=https://your-production-domain
+NEXTAUTH_URL=https://your-production-domain
+AUTH_TRUST_HOST=true
+APP_NAME="Antenatal Care Management System"
+```
+
+For the current Vercel app, the URL values should use the deployed HTTPS domain,
+for example:
+
+```env
+AUTH_URL=https://antenatal-care-management-system.vercel.app
+NEXTAUTH_URL=https://antenatal-care-management-system.vercel.app
+```
+
+If production redirects to `localhost`, the production `AUTH_URL` or
+`NEXTAUTH_URL` is still set to a local URL. Update the production environment
+variables and redeploy.
 
 ## Local Setup
 
@@ -187,16 +225,20 @@ npx tsc --noEmit
 npm run build
 ```
 
+Run these before pushing production changes.
+
 ## Security Notes
 
 - Never commit `.env.local` or real database credentials.
 - `.env.example` must contain placeholders only.
+- Rotate any database password that was ever pasted into chat, committed, or exposed in deployment logs.
 - Passwords are hashed with bcryptjs.
 - `passwordHash` is excluded from normal user queries and session data.
 - Admin pages are server-side protected.
 - Health worker data is scoped by authorized patient access.
 - Pregnant woman portal data is scoped to the logged-in patient profile.
 - Audit logs are admin-only and read-only.
+- Auth.js errors are routed through the app login page instead of exposing the default server error page.
 
 ## MVP Status
 

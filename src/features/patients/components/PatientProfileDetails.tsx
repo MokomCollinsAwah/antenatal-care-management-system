@@ -1,5 +1,6 @@
+import { HeartPulse, IdCard, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { UserStatus } from "@/lib/constants";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import type { PatientSummary } from "@/types";
@@ -7,11 +8,7 @@ import type { PatientSummary } from "@/types";
 export function PatientProfileDetails({ patient }: { patient: PatientSummary }) {
   return (
     <div className="grid gap-6 xl:grid-cols-3">
-      <Card>
-        <CardHeader>
-          <CardTitle>Patient Account Information</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <CollapsiblePanel title="Patient Account Information" icon={IdCard} defaultOpen>
           <dl className="space-y-5">
             <Detail label="Full Name" value={patient.fullName} />
             <Detail label="Phone" value={patient.phone} />
@@ -34,13 +31,8 @@ export function PatientProfileDetails({ patient }: { patient: PatientSummary }) 
             </div>
             <Detail label="Created At" value={formatDateTime(patient.createdAt)} />
           </dl>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
-        </CardHeader>
-        <CardContent>
+      </CollapsiblePanel>
+      <CollapsiblePanel title="Personal Information" icon={UserRound} defaultOpen>
           <dl className="space-y-5">
             <Detail label="Age" value={String(patient.age)} />
             <Detail label="Address" value={patient.address} />
@@ -53,13 +45,8 @@ export function PatientProfileDetails({ patient }: { patient: PatientSummary }) 
               value={patient.emergencyContactPhone || "Not provided"}
             />
           </dl>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Antenatal Information</CardTitle>
-        </CardHeader>
-        <CardContent>
+      </CollapsiblePanel>
+      <CollapsiblePanel title="Antenatal Information" icon={HeartPulse} defaultOpen tone="teal">
           <dl className="space-y-5">
             <Detail label="Health Centre" value={patient.healthCentreName} />
             <Detail
@@ -79,19 +66,18 @@ export function PatientProfileDetails({ patient }: { patient: PatientSummary }) 
             <Detail label="Blood Group" value={patient.bloodGroup || "—"} />
             <Detail label="Risk Note" value={patient.riskNote || "—"} />
           </dl>
-        </CardContent>
-      </Card>
+      </CollapsiblePanel>
     </div>
   );
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div>
+    <div className="min-w-0">
       <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">
         {label}
       </dt>
-      <dd className="mt-1 text-sm font-medium text-slate-900">{value}</dd>
+      <dd className="mt-1 break-words text-sm font-medium text-slate-900">{value}</dd>
     </div>
   );
 }

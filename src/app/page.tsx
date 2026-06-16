@@ -40,7 +40,7 @@ export default function Home() {
               href="/login"
               className="mt-7 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-6 font-semibold text-white hover:bg-teal-800 sm:w-auto"
             >
-              Staff login
+              Login
               <ArrowRight className="size-4" />
             </Link>
           </div>

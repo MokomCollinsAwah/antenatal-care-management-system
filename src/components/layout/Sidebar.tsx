@@ -74,7 +74,7 @@ export function Sidebar({
     >
       <div
         className={cn(
-          "flex h-18 items-center gap-3 border-b border-slate-200",
+          "flex h-16 items-center gap-3 border-b border-slate-200",
           isCollapsed ? "justify-center px-3" : "px-5",
         )}
       >
