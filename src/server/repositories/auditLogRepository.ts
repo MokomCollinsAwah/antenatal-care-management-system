@@ -29,6 +29,18 @@ export async function createAuditLog(input: CreateAuditLogInput) {
 const escapeRegex = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+function parseStartOfDay(value: string) {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function parseEndOfDay(value: string) {
+  const date = new Date(value);
+  date.setHours(23, 59, 59, 999);
+  return date;
+}
+
 export async function findAuditLogs(filters: AuditLogFilters) {
   await connectDB();
   const match: Record<string, unknown> = {};
@@ -36,8 +48,8 @@ export async function findAuditLogs(filters: AuditLogFilters) {
   if (filters.entityType) match.entityType = filters.entityType;
   if (filters.startDate || filters.endDate) {
     match.createdAt = {
-      ...(filters.startDate ? { $gte: new Date(filters.startDate) } : {}),
-      ...(filters.endDate ? { $lte: new Date(filters.endDate) } : {}),
+      ...(filters.startDate ? { $gte: parseStartOfDay(filters.startDate) } : {}),
+      ...(filters.endDate ? { $lte: parseEndOfDay(filters.endDate) } : {}),
     };
   }
   const pipeline: PipelineStage[] = [
@@ -63,7 +75,6 @@ export async function findAuditLogs(filters: AuditLogFilters) {
   pipeline.push(
     { $project: { "actor.passwordHash": 0 } },
     { $sort: { createdAt: -1 } },
-    { $limit: 200 },
   );
   return AuditLog.aggregate(pipeline);
 }
