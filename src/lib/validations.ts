@@ -7,13 +7,17 @@ import {
   UserRole,
   UserStatus,
   AppointmentStatus,
+  ReminderStatus,
 } from "@/lib/constants";
 
 const requiredText = (message: string) => z.string().trim().min(1, message);
 const optionalText = z.string().trim().optional();
 const requiredDate = (message: string) =>
   z.coerce.date({ error: message });
-const optionalDate = z.coerce.date().optional();
+const optionalDate = z.preprocess(
+  (value) => (value === "" || value === null ? undefined : value),
+  z.coerce.date().optional(),
+);
 const phoneSchema = z
   .string()
   .trim()
@@ -210,4 +214,13 @@ export const createFollowUpRecordSchema = z.object({
   method: z.enum(FollowUpMethod),
   outcome: z.enum(FollowUpOutcome),
   notes: optionalText,
+});
+
+export const updateReminderStatusSchema = z.object({
+  reminderId: requiredText("Reminder is required"),
+  status: z.enum([
+    ReminderStatus.DUE,
+    ReminderStatus.READ,
+    ReminderStatus.DISMISSED,
+  ]),
 });

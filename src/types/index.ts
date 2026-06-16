@@ -174,3 +174,79 @@ export interface VisitListFilters {
   dateFrom?: string;
   dateTo?: string;
 }
+
+export interface ClinicalRecordFilters {
+  search?: string;
+  patientId?: string;
+  healthCentreId?: string;
+  status?: string;
+  type?: string;
+  method?: string;
+  outcome?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface SupplementSummary {
+  id: string;
+  patientId: string;
+  patientName: string;
+  patientPhone: string;
+  healthCentreId: string;
+  healthCentreName: string;
+  supplementName: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string;
+  instructions?: string;
+  status: SupplementStatus;
+  recordedByName: string;
+  createdAt: string;
+}
+
+export interface ScanSummary {
+  id: string;
+  patientId: string;
+  patientName: string;
+  patientPhone: string;
+  healthCentreId: string;
+  healthCentreName: string;
+  scanDate: string;
+  scanType: string;
+  resultNote?: string;
+  nextScanDate?: string;
+  recordedByName: string;
+  createdAt: string;
+}
+
+export interface FollowUpSummary {
+  id: string;
+  patientId: string;
+  patientName: string;
+  patientPhone: string;
+  healthCentreId: string;
+  healthCentreName: string;
+  appointmentId?: string;
+  followUpDate: string;
+  method: FollowUpMethod;
+  outcome: FollowUpOutcome;
+  notes?: string;
+  followedByName: string;
+  createdAt: string;
+}
+
+export interface ReminderSummary {
+  id: string;
+  patientId: string;
+  patientName: string;
+  patientPhone: string;
+  healthCentreId: string;
+  healthCentreName: string;
+  title: string;
+  message: string;
+  reminderType: ReminderType;
+  dueDateTime: string;
+  status: ReminderStatus;
+  createdAt: string;
+}

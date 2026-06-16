@@ -7,33 +7,46 @@ import { StatCard } from "@/components/ui/StatCard";
 import { getCurrentPortalPatientProfile } from "@/features/patients/queries";
 import { getPortalAppointmentsForPatient } from "@/features/appointments/queries";
 import { getPortalVisitsForPatient } from "@/features/visits/queries";
-import { AppointmentStatus } from "@/lib/constants";
+import { FollowUpOutcomeBadge } from "@/features/followups/components/FollowUpOutcomeBadge";
+import { PatientReminderList } from "@/features/reminders/components/PatientReminderList";
+import { SupplementStatusBadge } from "@/features/supplements/components/SupplementStatusBadge";
+import { getPortalFollowUpsForPatient } from "@/features/followups/queries";
+import { getPortalRemindersForPatient } from "@/features/reminders/queries";
+import { getPortalScansForPatient } from "@/features/scans/queries";
+import { getPortalSupplementsForPatient } from "@/features/supplements/queries";
+import { AppointmentStatus, ReminderStatus, SupplementStatus } from "@/lib/constants";
 import { requireRole } from "@/lib/auth-utils";
 import { UserRole } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
-const portalStats = [
-  { title: "Next Appointment", value: "Not scheduled", icon: CalendarDays },
-  { title: "Active Supplements", value: "—", icon: Activity },
-  { title: "Unread Reminders", value: "—", icon: Bell },
-  { title: "Upcoming Scan", value: "Not scheduled", icon: ScanLine },
-];
-
 export default async function PortalPage() {
   const user = await requireRole([UserRole.PREGNANT_WOMAN]);
   const profile = await getCurrentPortalPatientProfile(user.id);
-  const [appointments, visits] = profile
+  const [appointments, visits, supplements, scans, followUps, reminders] = profile
     ? await Promise.all([
         getPortalAppointmentsForPatient(profile.id),
         getPortalVisitsForPatient(profile.id),
+        getPortalSupplementsForPatient(profile.id),
+        getPortalScansForPatient(profile.id),
+        getPortalFollowUpsForPatient(profile.id),
+        getPortalRemindersForPatient(profile.id),
       ])
-    : [[], []];
+    : [[], [], [], [], [], []];
   const upcomingAppointments = appointments.filter(
     (appointment) => appointment.status === AppointmentStatus.SCHEDULED,
   );
   const missedAppointments = appointments.filter(
     (appointment) => appointment.status === AppointmentStatus.MISSED,
   );
+  const activeSupplements = supplements.filter((record) => record.status === SupplementStatus.ACTIVE);
+  const upcomingScans = scans.filter((scan) => !scan.nextScanDate || new Date(scan.nextScanDate) >= new Date());
+  const openReminders = reminders.filter((reminder) => reminder.status === ReminderStatus.PENDING || reminder.status === ReminderStatus.DUE);
+  const portalStats = [
+    { title: "Next Appointment", value: upcomingAppointments[0] ? formatDate(upcomingAppointments[0].scheduledDateTime) : "Not scheduled", icon: CalendarDays },
+    { title: "Active Supplements", value: activeSupplements.length, icon: Activity },
+    { title: "Unread Reminders", value: openReminders.length, icon: Bell },
+    { title: "Upcoming Scan", value: upcomingScans[0]?.nextScanDate ? formatDate(upcomingScans[0].nextScanDate) : "Not scheduled", icon: ScanLine },
+  ];
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -106,6 +119,55 @@ export default async function PortalPage() {
                       {visit.notes && <p className="text-sm text-slate-500">Notes: {visit.notes}</p>}
                     </div>
                   )) : <EmptyState title="No recent visits" description="Visit records will appear after attended appointments." />}
+                </CardContent>
+              </Card>
+            </div>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader><CardTitle>Active Supplements</CardTitle></CardHeader>
+                <CardContent>
+                  {activeSupplements.length ? activeSupplements.slice(0, 5).map((record) => (
+                    <div key={record.id} className="border-b border-slate-100 py-3 last:border-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-semibold text-slate-900">{record.supplementName}</p>
+                        <SupplementStatusBadge status={record.status} />
+                      </div>
+                      <p className="text-sm text-slate-500">{record.dosage} · {record.frequency}</p>
+                      {record.instructions && <p className="text-sm text-slate-600">{record.instructions}</p>}
+                    </div>
+                  )) : <EmptyState title="No active supplements" description="Active supplement plans will appear here." />}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Upcoming Scans</CardTitle></CardHeader>
+                <CardContent>
+                  {upcomingScans.length ? upcomingScans.slice(0, 5).map((scan) => (
+                    <div key={scan.id} className="border-b border-slate-100 py-3 last:border-0">
+                      <p className="font-semibold text-slate-900">{scan.scanType}</p>
+                      <p className="text-sm text-slate-500">Scan: {formatDate(scan.scanDate)} · Next: {scan.nextScanDate ? formatDate(scan.nextScanDate) : "Not scheduled"}</p>
+                    </div>
+                  )) : <EmptyState title="No upcoming scans" description="Future scan reminders will appear here." />}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Follow-ups</CardTitle></CardHeader>
+                <CardContent>
+                  {followUps.length ? followUps.slice(0, 5).map((record) => (
+                    <div key={record.id} className="border-b border-slate-100 py-3 last:border-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-semibold text-slate-900">{formatDate(record.followUpDate)}</p>
+                        <FollowUpOutcomeBadge outcome={record.outcome} />
+                      </div>
+                      <p className="text-sm text-slate-500">{record.method.replaceAll("_", " ")}</p>
+                      {record.notes && <p className="text-sm text-slate-600">{record.notes}</p>}
+                    </div>
+                  )) : <EmptyState title="No follow-ups" description="Follow-up records from your care team will appear here." />}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Reminders</CardTitle></CardHeader>
+                <CardContent>
+                  <PatientReminderList reminders={openReminders.slice(0, 5)} portal />
                 </CardContent>
               </Card>
             </div>

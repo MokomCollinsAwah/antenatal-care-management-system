@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,7 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   const router = useRouter();
+  const [hydrated, setHydrated] = useState(false);
   const [formError, setFormError] = useState<string>();
   const {
     register,
@@ -30,6 +31,11 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
       password: "",
     },
   });
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setHydrated(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const onSubmit = async (values: LoginValues) => {
     setFormError(undefined);
@@ -102,8 +108,18 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
           {formError}
         </p>
       )}
-      <Button type="submit" className="w-full" loading={isSubmitting}>
-        Login
+      {!hydrated && (
+        <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          Loading secure sign-in...
+        </p>
+      )}
+      <Button
+        type="submit"
+        className="w-full"
+        loading={isSubmitting}
+        disabled={!hydrated}
+      >
+        {hydrated ? "Login" : "Loading"}
       </Button>
     </form>
   );

@@ -34,7 +34,7 @@ async function seed() {
           phone: "670100100",
         },
       },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
+      { returnDocument: "after", upsert: true, setDefaultsOnInsert: true },
     );
 
     const admin = await User.findOneAndUpdate(
@@ -51,7 +51,7 @@ async function seed() {
           status: UserStatus.ACTIVE,
         },
       },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
+      { returnDocument: "after", upsert: true, setDefaultsOnInsert: true },
     ).select("+passwordHash");
 
     const healthWorker = await User.findOneAndUpdate(
@@ -70,7 +70,7 @@ async function seed() {
           createdById: admin._id,
         },
       },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
+      { returnDocument: "after", upsert: true, setDefaultsOnInsert: true },
     ).select("+passwordHash");
 
     await User.findOneAndUpdate(
@@ -89,7 +89,7 @@ async function seed() {
           createdById: healthWorker._id,
         },
       },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
+      { returnDocument: "after", upsert: true, setDefaultsOnInsert: true },
     );
 
     console.log(`
@@ -122,3 +122,4 @@ seed().catch((error: unknown) => {
   );
   process.exitCode = 1;
 });
+

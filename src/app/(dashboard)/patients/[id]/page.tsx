@@ -4,13 +4,19 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { PatientFutureSections } from "@/features/patients/components/PatientFutureSections";
 import { PatientProfileDetails } from "@/features/patients/components/PatientProfileDetails";
 import { getPatientDetails } from "@/features/patients/queries";
 import { getAppointmentsForPatient } from "@/features/appointments/queries";
 import { getVisitsForPatient } from "@/features/visits/queries";
 import { AppointmentStatusBadge } from "@/features/appointments/components/AppointmentStatusBadge";
-import { formatDateTime } from "@/lib/utils";
+import { FollowUpOutcomeBadge } from "@/features/followups/components/FollowUpOutcomeBadge";
+import { PatientReminderList } from "@/features/reminders/components/PatientReminderList";
+import { SupplementStatusBadge } from "@/features/supplements/components/SupplementStatusBadge";
+import { getFollowUpsForPatient } from "@/features/followups/queries";
+import { getRemindersForPatient } from "@/features/reminders/queries";
+import { getScansForPatient } from "@/features/scans/queries";
+import { getSupplementsForPatient } from "@/features/supplements/queries";
+import { formatDate, formatDateTime } from "@/lib/utils";
 import { AdminServiceError } from "@/server/services/adminServiceError";
 
 export default async function PatientDetailsPage({
@@ -19,10 +25,14 @@ export default async function PatientDetailsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [patient, appointments, visits] = await Promise.all([
+  const [patient, appointments, visits, supplements, scans, followUps, reminders] = await Promise.all([
     loadPatient(id),
     getAppointmentsForPatient(id),
     getVisitsForPatient(id),
+    getSupplementsForPatient(id),
+    getScansForPatient(id),
+    getFollowUpsForPatient(id),
+    getRemindersForPatient(id),
   ]);
 
   return (
@@ -101,7 +111,74 @@ export default async function PatientDetailsPage({
           </CardContent>
         </Card>
       </div>
-      <PatientFutureSections />
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle>Supplements</CardTitle></CardHeader>
+          <CardContent>
+            {supplements.length ? (
+              <div className="space-y-3">
+                {supplements.slice(0, 5).map((record) => (
+                  <div key={record.id} className="rounded-lg border border-slate-200 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-semibold text-slate-900">{record.supplementName}</p>
+                      <SupplementStatusBadge status={record.status} />
+                    </div>
+                    <p className="mt-1 text-sm text-slate-500">{record.dosage} · {record.frequency} · Starts {formatDate(record.startDate)}</p>
+                  </div>
+                ))}
+                <Link href={`/supplements/new?patientId=${patient.id}`} className="inline-flex h-10 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800">Add Supplement</Link>
+              </div>
+            ) : (
+              <EmptyState title="No supplements yet" description="Add a supplement record for this patient." action={<Link href={`/supplements/new?patientId=${patient.id}`} className="inline-flex h-10 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800">Add Supplement</Link>} />
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Scans</CardTitle></CardHeader>
+          <CardContent>
+            {scans.length ? (
+              <div className="space-y-3">
+                {scans.slice(0, 5).map((record) => (
+                  <div key={record.id} className="rounded-lg border border-slate-200 p-3">
+                    <p className="font-semibold text-slate-900">{record.scanType}</p>
+                    <p className="mt-1 text-sm text-slate-500">{formatDate(record.scanDate)} · Next: {record.nextScanDate ? formatDate(record.nextScanDate) : "—"}</p>
+                    {record.resultNote && <p className="mt-1 text-sm text-slate-600">{record.resultNote}</p>}
+                  </div>
+                ))}
+                <Link href={`/scans/new?patientId=${patient.id}`} className="inline-flex h-10 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800">Add Scan</Link>
+              </div>
+            ) : (
+              <EmptyState title="No scans yet" description="Add a scan record for this patient." action={<Link href={`/scans/new?patientId=${patient.id}`} className="inline-flex h-10 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800">Add Scan</Link>} />
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Follow-ups</CardTitle></CardHeader>
+          <CardContent>
+            {followUps.length ? (
+              <div className="space-y-3">
+                {followUps.slice(0, 5).map((record) => (
+                  <div key={record.id} className="rounded-lg border border-slate-200 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-semibold text-slate-900">{formatDateTime(record.followUpDate)}</p>
+                      <FollowUpOutcomeBadge outcome={record.outcome} />
+                    </div>
+                    <p className="mt-1 text-sm text-slate-500">{record.method.replaceAll("_", " ")} · {record.followedByName}</p>
+                    {record.notes && <p className="mt-1 text-sm text-slate-600">{record.notes}</p>}
+                  </div>
+                ))}
+                <Link href={`/follow-ups/new?patientId=${patient.id}`} className="inline-flex h-10 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800">Add Follow-up</Link>
+              </div>
+            ) : (
+              <EmptyState title="No follow-ups yet" description="Add a follow-up record for this patient." action={<Link href={`/follow-ups/new?patientId=${patient.id}`} className="inline-flex h-10 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800">Add Follow-up</Link>} />
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Reminders</CardTitle></CardHeader>
+          <CardContent><PatientReminderList reminders={reminders.slice(0, 5)} /></CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

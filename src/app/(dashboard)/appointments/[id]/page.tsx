@@ -38,7 +38,7 @@ export default async function AppointmentDetailsPage({ params }: { params: Promi
         <Card><CardHeader><CardTitle>Visit Summary</CardTitle></CardHeader><CardContent><p className="text-sm text-slate-600">Visit date: {formatDateTime(appointment.visit.visitDate)}</p><p className="mt-2 text-sm text-slate-600">Advice: {appointment.visit.advice || "—"}</p></CardContent></Card>
       )}
       {appointment.status === AppointmentStatus.MISSED && (
-        <Card><CardContent className="pt-6"><EmptyState title="Missed appointment" description="Follow-up records will be implemented in the next step." /></CardContent></Card>
+        <Card><CardContent className="pt-6"><EmptyState title="Missed appointment" description="Create a follow-up record to track contact with the patient." action={<Link href={`/follow-ups/new?appointmentId=${appointment.id}`} className="inline-flex h-10 items-center rounded-lg bg-teal-700 px-4 text-sm font-semibold text-white hover:bg-teal-800">Create Follow-up</Link>} /></CardContent></Card>
       )}
       <Link href="/appointments" className="font-semibold text-teal-700">Back to appointments</Link>
     </div>

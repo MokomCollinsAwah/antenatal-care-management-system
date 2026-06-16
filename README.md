@@ -23,7 +23,7 @@ Foundation and authentication setup. The project currently provides:
 - Shared domain enums, types, permission helpers, and validation schemas
 - Cached MongoDB connection utility
 - Mongoose models and indexes for the planned data model
-- Placeholder routes for each planned application area
+- Protected routes for the implemented clinical workflows
 - Credentials login with phone number or email
 - JWT sessions and role-based route protection
 - Role-aware dashboard navigation and patient portal routing
@@ -39,9 +39,15 @@ Foundation and authentication setup. The project currently provides:
 - Missed appointment tracking through the appointment status filter
 - Visit records created from attended appointments
 - Patient details and portal pages now show appointments and visits
+- Supplement record creation, filtering, and patient reminder creation
+- Scan record creation, filtering, and next-scan reminder creation
+- Follow-up record creation, including missed appointment follow-ups
+- In-system reminder listing and status updates
+- Patient details now show appointments, visits, supplements, scans, follow-ups, and reminders
+- Pregnant woman portal now shows owned supplements, scans, follow-ups, and reminders
 
-Supplements, scans, reminders, follow-ups, reporting, and dashboard real
-statistics are intentionally not implemented yet.
+Dashboard real statistics and report calculations are intentionally planned for
+a later prompt.
 
 ## Planned Features
 
@@ -166,10 +172,32 @@ and visit actions create audit logs. Pregnant women cannot access appointment or
 visit management pages, but their portal shows upcoming appointments, recent
 visits, and missed appointment warnings.
 
+## Clinical Support Records
+
+Admins and health workers can manage clinical support records for authorized
+patients:
+
+- `/supplements` lists supplement records with search, status, and centre filters
+- `/supplements/new` records a supplement plan and creates an in-system reminder
+- `/scans` lists scan records with search, centre, and date filters
+- `/scans/new` records scan information and can create a next-scan reminder
+- `/follow-ups` lists follow-up records with method, outcome, and centre filters
+- `/follow-ups/new` creates a follow-up record
+- `/follow-ups/new?appointmentId=...` preloads the patient from a missed appointment
+- `/reminders` lists in-system reminders and supports valid status transitions
+
+Pregnant women cannot access staff clinical pages. Their `/portal` view shows
+only their own active supplements, upcoming scans, follow-ups, and unread or due
+reminders. They can mark their own reminders as read or dismissed.
+
+Clinical support actions create audit logs for supplement creation, scan
+creation, follow-up creation, and reminder status changes.
+
 ## Quality Commands
 
 ```bash
 npm run lint
+npx tsc --noEmit
 npm run build
 ```
 
@@ -193,3 +221,4 @@ src/
 - Does not manage delivery operations
 - Does not manage billing
 - Does not include SMS or email reminders in the MVP
+- Does not include report calculations or dashboard real statistics yet
