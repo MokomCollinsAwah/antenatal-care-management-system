@@ -5,7 +5,7 @@ import type { ClinicalRecordFilters, HealthCentreOption } from "@/types";
 
 export function ScanFilters({ filters, healthCentres }: { filters: ClinicalRecordFilters; healthCentres: HealthCentreOption[] }) {
   return (
-    <form className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+    <form className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
       <Input name="search" defaultValue={filters.search} placeholder="Search patient name or phone" />
       <Select name="healthCentreId" defaultValue={filters.healthCentreId} placeholder="All centres" options={healthCentres} />
       <Input name="dateFrom" type="date" defaultValue={filters.dateFrom} aria-label="Date from" />

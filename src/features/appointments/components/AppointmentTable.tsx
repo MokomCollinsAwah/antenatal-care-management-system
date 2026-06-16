@@ -10,7 +10,7 @@ export function AppointmentTable({ appointments }: { appointments: AppointmentSu
     return <EmptyState title="No appointments found" description="No appointments match the current filters." />;
   }
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="responsive-table">
       <table className="w-full min-w-max divide-y divide-slate-200 text-left text-sm">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
@@ -27,14 +27,14 @@ export function AppointmentTable({ appointments }: { appointments: AppointmentSu
         <tbody className="divide-y divide-slate-100">
           {appointments.map((appointment) => (
             <tr key={appointment.id} className="align-top hover:bg-slate-50/70">
-              <td className="px-5 py-4 font-semibold text-slate-900">{appointment.patientName}</td>
-              <td className="px-5 py-4 text-slate-600">{appointment.patientPhone}</td>
-              <td className="px-5 py-4 text-slate-600">{appointment.appointmentType.replaceAll("_", " ")}</td>
-              <td className="px-5 py-4 text-slate-600">{formatDateTime(appointment.scheduledDateTime)}</td>
-              <td className="px-5 py-4"><AppointmentStatusBadge status={appointment.status} /></td>
-              <td className="px-5 py-4 text-slate-600">{appointment.healthCentreName}</td>
-              <td className="px-5 py-4 text-slate-600">{appointment.createdByName}</td>
-              <td className="px-5 py-4">
+              <td data-label="Patient" className="px-5 py-4 font-semibold text-slate-900">{appointment.patientName}</td>
+              <td data-label="Phone" className="px-5 py-4 text-slate-600">{appointment.patientPhone}</td>
+              <td data-label="Type" className="px-5 py-4 text-slate-600">{appointment.appointmentType.replaceAll("_", " ")}</td>
+              <td data-label="Scheduled" className="px-5 py-4 text-slate-600">{formatDateTime(appointment.scheduledDateTime)}</td>
+              <td data-label="Status" className="px-5 py-4"><AppointmentStatusBadge status={appointment.status} /></td>
+              <td data-label="Health Centre" className="px-5 py-4 text-slate-600">{appointment.healthCentreName}</td>
+              <td data-label="Created By" className="px-5 py-4 text-slate-600">{appointment.createdByName}</td>
+              <td data-label="Actions" className="px-5 py-4">
                 <div className="flex flex-col items-end gap-2">
                   <Link href={`/appointments/${appointment.id}`} className="font-semibold text-teal-700 hover:text-teal-900">View</Link>
                   <AppointmentStatusActions appointment={appointment} />

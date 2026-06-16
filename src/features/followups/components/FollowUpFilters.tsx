@@ -6,7 +6,7 @@ import type { ClinicalRecordFilters, HealthCentreOption } from "@/types";
 
 export function FollowUpFilters({ filters, healthCentres }: { filters: ClinicalRecordFilters; healthCentres: HealthCentreOption[] }) {
   return (
-    <form className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+    <form className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
       <Input name="search" defaultValue={filters.search} placeholder="Search patient name or phone" />
       <Select name="method" defaultValue={filters.method} placeholder="All methods" options={FOLLOW_UP_METHOD_OPTIONS} />
       <Select name="outcome" defaultValue={filters.outcome} placeholder="All outcomes" options={FOLLOW_UP_OUTCOME_OPTIONS} />

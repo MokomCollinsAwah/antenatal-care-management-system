@@ -6,7 +6,7 @@ import type { VisitSummary } from "@/types";
 export function VisitTable({ visits }: { visits: VisitSummary[] }) {
   if (visits.length === 0) return <EmptyState title="No visit records found" description="Visit records will appear after appointments are marked attended." />;
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="responsive-table">
       <table className="w-full min-w-max divide-y divide-slate-200 text-left text-sm">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
@@ -23,14 +23,14 @@ export function VisitTable({ visits }: { visits: VisitSummary[] }) {
         <tbody className="divide-y divide-slate-100">
           {visits.map((visit) => (
             <tr key={visit.id}>
-              <td className="px-5 py-4 font-semibold text-slate-900">{visit.patientName}</td>
-              <td className="px-5 py-4 text-slate-600">{formatDate(visit.visitDate)}</td>
-              <td className="px-5 py-4 text-slate-600">{visit.appointmentType.replaceAll("_", " ")}</td>
-              <td className="px-5 py-4 text-slate-600">{visit.weightKg ? `${visit.weightKg} kg` : "—"}</td>
-              <td className="px-5 py-4 text-slate-600">{visit.systolicBP && visit.diastolicBP ? `${visit.systolicBP}/${visit.diastolicBP}` : "—"}</td>
-              <td className="px-5 py-4 text-slate-600">{visit.recordedByName}</td>
-              <td className="px-5 py-4 text-slate-600">{formatDateTime(visit.createdAt)}</td>
-              <td className="px-5 py-4 text-right">
+              <td data-label="Patient" className="px-5 py-4 font-semibold text-slate-900">{visit.patientName}</td>
+              <td data-label="Visit Date" className="px-5 py-4 text-slate-600">{formatDate(visit.visitDate)}</td>
+              <td data-label="Appointment Type" className="px-5 py-4 text-slate-600">{visit.appointmentType.replaceAll("_", " ")}</td>
+              <td data-label="Weight" className="px-5 py-4 text-slate-600">{visit.weightKg ? `${visit.weightKg} kg` : "—"}</td>
+              <td data-label="Blood Pressure" className="px-5 py-4 text-slate-600">{visit.systolicBP && visit.diastolicBP ? `${visit.systolicBP}/${visit.diastolicBP}` : "—"}</td>
+              <td data-label="Recorded By" className="px-5 py-4 text-slate-600">{visit.recordedByName}</td>
+              <td data-label="Created At" className="px-5 py-4 text-slate-600">{formatDateTime(visit.createdAt)}</td>
+              <td data-label="Actions" className="px-5 py-4 text-right">
                 <div className="flex justify-end gap-3">
                   <Link href={`/appointments/${visit.appointmentId}`} className="font-semibold text-teal-700">View appointment</Link>
                   <Link href={`/patients/${visit.patientId}`} className="font-semibold text-slate-600">View patient</Link>

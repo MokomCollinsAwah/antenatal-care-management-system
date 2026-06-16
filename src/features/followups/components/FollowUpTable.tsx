@@ -7,7 +7,7 @@ import type { FollowUpSummary } from "@/types";
 export function FollowUpTable({ followUps }: { followUps: FollowUpSummary[] }) {
   if (!followUps.length) return <EmptyState title="No follow-up records found" description="No follow-up records match the current filters." />;
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="responsive-table">
       <table className="w-full min-w-max divide-y divide-slate-200 text-left text-sm">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
@@ -24,14 +24,14 @@ export function FollowUpTable({ followUps }: { followUps: FollowUpSummary[] }) {
         <tbody className="divide-y divide-slate-100">
           {followUps.map((record) => (
             <tr key={record.id} className="align-top hover:bg-slate-50/70">
-              <td className="px-5 py-4"><p className="font-semibold text-slate-900">{record.patientName}</p><p className="text-slate-500">{record.patientPhone}</p></td>
-              <td className="px-5 py-4 text-slate-600">{formatDateTime(record.followUpDate)}</td>
-              <td className="px-5 py-4 text-slate-600">{record.method.replaceAll("_", " ")}</td>
-              <td className="px-5 py-4"><FollowUpOutcomeBadge outcome={record.outcome} /></td>
-              <td className="px-5 py-4">{record.appointmentId ? <Link href={`/appointments/${record.appointmentId}`} className="font-semibold text-teal-700">View Appointment</Link> : <span className="text-slate-500">—</span>}</td>
-              <td className="px-5 py-4 text-slate-600">{record.followedByName}</td>
-              <td className="px-5 py-4 text-slate-600">{record.notes || "—"}</td>
-              <td className="px-5 py-4 text-right"><Link href={`/patients/${record.patientId}`} className="font-semibold text-teal-700 hover:text-teal-900">View Patient</Link></td>
+              <td data-label="Patient" className="px-5 py-4"><p className="font-semibold text-slate-900">{record.patientName}</p><p className="text-slate-500">{record.patientPhone}</p></td>
+              <td data-label="Follow-up Date" className="px-5 py-4 text-slate-600">{formatDateTime(record.followUpDate)}</td>
+              <td data-label="Method" className="px-5 py-4 text-slate-600">{record.method.replaceAll("_", " ")}</td>
+              <td data-label="Outcome" className="px-5 py-4"><FollowUpOutcomeBadge outcome={record.outcome} /></td>
+              <td data-label="Related Appointment" className="px-5 py-4">{record.appointmentId ? <Link href={`/appointments/${record.appointmentId}`} className="font-semibold text-teal-700">View Appointment</Link> : <span className="text-slate-500">—</span>}</td>
+              <td data-label="Followed By" className="px-5 py-4 text-slate-600">{record.followedByName}</td>
+              <td data-label="Notes" className="px-5 py-4 text-slate-600">{record.notes || "—"}</td>
+              <td data-label="Actions" className="px-5 py-4 text-right"><Link href={`/patients/${record.patientId}`} className="font-semibold text-teal-700 hover:text-teal-900">View Patient</Link></td>
             </tr>
           ))}
         </tbody>

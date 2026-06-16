@@ -26,7 +26,7 @@ export function HealthCentreTable({
   }
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="responsive-table">
       <table className="w-full min-w-max divide-y divide-slate-200 text-left text-sm">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
@@ -41,22 +41,22 @@ export function HealthCentreTable({
         <tbody className="divide-y divide-slate-100 bg-white">
           {healthCentres.map((centre) => (
             <tr key={centre.id} className="hover:bg-slate-50/70">
-              <td className="whitespace-nowrap px-5 py-4 font-semibold text-slate-900">
+              <td data-label="Name" className="whitespace-nowrap px-5 py-4 font-semibold text-slate-900">
                 {centre.name}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+              <td data-label="Location" className="whitespace-nowrap px-5 py-4 text-slate-600">
                 {centre.location}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+              <td data-label="Phone" className="whitespace-nowrap px-5 py-4 text-slate-600">
                 {centre.phone || "—"}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+              <td data-label="Health Workers" className="whitespace-nowrap px-5 py-4 text-slate-600">
                 {centre.healthWorkerCount}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+              <td data-label="Created At" className="whitespace-nowrap px-5 py-4 text-slate-600">
                 {formatDate(centre.createdAt)}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-right">
+              <td data-label="Actions" className="whitespace-nowrap px-5 py-4 text-right">
                 <div className="flex justify-end gap-3">
                   <Link
                     href={`/admin/health-centres/${centre.id}`}

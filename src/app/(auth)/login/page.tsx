@@ -7,11 +7,11 @@ export const metadata = { title: "Login" };
 export const dynamic = "force-dynamic";
 
 interface LoginPageProps {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, error } = await searchParams;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12">
@@ -33,7 +33,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 Sign in to access your care management workspace.
               </p>
             </div>
-            <LoginForm callbackUrl={callbackUrl} />
+            <LoginForm callbackUrl={callbackUrl} authError={error} />
           </CardContent>
         </Card>
       </div>

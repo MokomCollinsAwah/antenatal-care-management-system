@@ -37,7 +37,7 @@ const entityOptions = [
 
 export function AuditLogFilters({ filters }: { filters: AuditLogFiltersValue }) {
   return (
-    <form className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+    <form className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
       <Input name="search" defaultValue={filters.search} placeholder="Search description or actor" />
       <Select name="action" defaultValue={filters.action} placeholder="All actions" options={actionOptions} />
       <Select name="entityType" defaultValue={filters.entityType} placeholder="All entity types" options={entityOptions} />

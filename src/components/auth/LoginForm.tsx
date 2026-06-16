@@ -16,10 +16,30 @@ import { loginSchema } from "@/lib/validations";
 
 type LoginValues = z.infer<typeof loginSchema>;
 
-export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
+function getAuthErrorMessage(error?: string) {
+  switch (error) {
+    case "Configuration":
+      return "Sign in is not configured correctly. Contact the system administrator.";
+    case "AccessDenied":
+      return "You do not have permission to access this workspace.";
+    case "Verification":
+      return "The sign-in link is invalid or has expired.";
+    default:
+      return error ? "Unable to sign in. Please try again." : undefined;
+  }
+}
+
+interface LoginFormProps {
+  callbackUrl?: string;
+  authError?: string;
+}
+
+export function LoginForm({ callbackUrl, authError }: LoginFormProps) {
   const router = useRouter();
   const [hydrated, setHydrated] = useState(false);
-  const [formError, setFormError] = useState<string>();
+  const [formError, setFormError] = useState<string | undefined>(() =>
+    getAuthErrorMessage(authError),
+  );
   const {
     register,
     handleSubmit,

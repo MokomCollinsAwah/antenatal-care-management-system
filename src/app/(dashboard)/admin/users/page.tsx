@@ -58,7 +58,7 @@ export default async function AdminUsersPage({
       />
       <Card>
         <CardContent className="pt-6">
-          <form className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+          <form className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
             <Input
               name="search"
               defaultValue={params.search}

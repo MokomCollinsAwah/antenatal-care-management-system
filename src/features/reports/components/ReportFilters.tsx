@@ -12,7 +12,7 @@ export function ReportFilters({
   healthCentres: HealthCentreOption[];
 }) {
   return (
-    <form className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+    <form className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
       <Input name="startDate" type="date" defaultValue={filters.startDate} aria-label="Start date" />
       <Input name="endDate" type="date" defaultValue={filters.endDate} aria-label="End date" />
       <Select name="healthCentreId" defaultValue={filters.healthCentreId} placeholder="All centres" options={healthCentres} />

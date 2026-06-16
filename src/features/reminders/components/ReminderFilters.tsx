@@ -6,7 +6,7 @@ import type { ClinicalRecordFilters } from "@/types";
 
 export function ReminderFilters({ filters }: { filters: ClinicalRecordFilters }) {
   return (
-    <form className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
+    <form className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
       <Input name="search" defaultValue={filters.search} placeholder="Search patient name or phone" />
       <Select name="type" defaultValue={filters.type} placeholder="All types" options={REMINDER_TYPE_OPTIONS} />
       <Select name="status" defaultValue={filters.status} placeholder="All statuses" options={REMINDER_STATUS_OPTIONS} />

@@ -22,7 +22,7 @@ export function PatientTable({ patients }: { patients: PatientSummary[] }) {
   }
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="responsive-table">
       <table className="w-full min-w-max divide-y divide-slate-200 text-left text-sm">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
@@ -40,31 +40,31 @@ export function PatientTable({ patients }: { patients: PatientSummary[] }) {
         <tbody className="divide-y divide-slate-100 bg-white">
           {patients.map((patient) => (
             <tr key={patient.id} className="hover:bg-slate-50/70">
-              <td className="whitespace-nowrap px-5 py-4 font-semibold text-slate-900">
+              <td data-label="Full Name" className="whitespace-nowrap px-5 py-4 font-semibold text-slate-900">
                 {patient.fullName}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+              <td data-label="Phone" className="whitespace-nowrap px-5 py-4 text-slate-600">
                 {patient.phone}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+              <td data-label="Age" className="whitespace-nowrap px-5 py-4 text-slate-600">
                 {patient.age}
               </td>
-              <td className="min-w-48 px-5 py-4 text-slate-600">
+              <td data-label="Address" className="min-w-48 px-5 py-4 text-slate-600">
                 {patient.address}
               </td>
-              <td className="min-w-48 px-5 py-4 text-slate-600">
+              <td data-label="Health Centre" className="min-w-48 px-5 py-4 text-slate-600">
                 {patient.healthCentreName}
               </td>
-              <td className="min-w-48 px-5 py-4 text-slate-600">
+              <td data-label="Assigned Health Worker" className="min-w-48 px-5 py-4 text-slate-600">
                 {patient.assignedHealthWorkerName}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+              <td data-label="Expected Delivery Date" className="whitespace-nowrap px-5 py-4 text-slate-600">
                 {formatDate(patient.expectedDeliveryDate)}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+              <td data-label="Created At" className="whitespace-nowrap px-5 py-4 text-slate-600">
                 {formatDate(patient.createdAt)}
               </td>
-              <td className="whitespace-nowrap px-5 py-4 text-right">
+              <td data-label="Actions" className="whitespace-nowrap px-5 py-4 text-right">
                 <div className="flex justify-end gap-3">
                   <Link
                     href={`/patients/${patient.id}`}

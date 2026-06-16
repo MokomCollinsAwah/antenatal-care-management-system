@@ -17,7 +17,7 @@ export function UserTable({ users }: { users: AdminUserSummary[] }) {
   }
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="responsive-table">
       <table className="w-full min-w-max divide-y divide-slate-200 text-left text-sm">
         <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
@@ -36,24 +36,24 @@ export function UserTable({ users }: { users: AdminUserSummary[] }) {
             const isHealthWorker = user.role === UserRole.HEALTH_WORKER;
             return (
               <tr key={user.id} className="align-top hover:bg-slate-50/70">
-                <td className="whitespace-nowrap px-5 py-4 font-semibold text-slate-900">
+                <td data-label="Full Name" className="whitespace-nowrap px-5 py-4 font-semibold text-slate-900">
                   {user.fullName}
                 </td>
-                <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                <td data-label="Phone" className="whitespace-nowrap px-5 py-4 text-slate-600">
                   {user.phone}
                 </td>
-                <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                <td data-label="Email" className="whitespace-nowrap px-5 py-4 text-slate-600">
                   {user.email || "—"}
                 </td>
-                <td className="whitespace-nowrap px-5 py-4">
+                <td data-label="Role" className="whitespace-nowrap px-5 py-4">
                   <Badge variant="neutral">
                     {user.role.replaceAll("_", " ")}
                   </Badge>
                 </td>
-                <td className="min-w-48 px-5 py-4 text-slate-600">
+                <td data-label="Health Centre" className="min-w-48 px-5 py-4 text-slate-600">
                   {user.healthCentreName || "—"}
                 </td>
-                <td className="whitespace-nowrap px-5 py-4">
+                <td data-label="Status" className="whitespace-nowrap px-5 py-4">
                   <Badge
                     variant={
                       user.status === UserStatus.ACTIVE
@@ -64,10 +64,10 @@ export function UserTable({ users }: { users: AdminUserSummary[] }) {
                     {user.status}
                   </Badge>
                 </td>
-                <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                <td data-label="Created At" className="whitespace-nowrap px-5 py-4 text-slate-600">
                   {formatDate(user.createdAt)}
                 </td>
-                <td className="min-w-56 px-5 py-4">
+                <td data-label="Actions" className="min-w-56 px-5 py-4">
                   <div className="flex flex-wrap justify-end gap-3">
                     <Link
                       href={`/admin/users/${user.id}`}
