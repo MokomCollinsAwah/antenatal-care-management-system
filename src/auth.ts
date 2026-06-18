@@ -16,8 +16,6 @@ class ServiceUnavailableError extends CredentialsSignin {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  basePath: "/api/auth",
-  baseUrl: process.env.AUTH_URL || process.env.NEXTAUTH_URL,
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
