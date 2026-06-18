@@ -1,4 +1,6 @@
 import mongoose, { type Document, type Model, Schema, Types } from "mongoose";
+import { BLOOD_GROUP_VALUES } from "@/lib/constants";
+import type { BloodGroup } from "@/types";
 
 export interface IPatientProfile extends Document {
   userId: Types.ObjectId;
@@ -12,7 +14,7 @@ export interface IPatientProfile extends Document {
   expectedDeliveryDate: Date;
   gravidity?: number;
   parity?: number;
-  bloodGroup?: string;
+  bloodGroup?: BloodGroup;
   riskNote?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -44,7 +46,7 @@ const PatientProfileSchema = new Schema<IPatientProfile>(
     expectedDeliveryDate: { type: Date, required: true },
     gravidity: { type: Number, min: 0 },
     parity: { type: Number, min: 0 },
-    bloodGroup: { type: String, trim: true },
+    bloodGroup: { type: String, enum: BLOOD_GROUP_VALUES, trim: true },
     riskNote: { type: String, trim: true },
   },
   { timestamps: true },

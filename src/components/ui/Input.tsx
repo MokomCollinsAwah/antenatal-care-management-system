@@ -17,6 +17,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       helperText,
       fullWidth = true,
       id,
+      required,
       ...props
     },
     ref,
@@ -33,11 +34,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className="block text-sm font-medium text-slate-700"
           >
             {label}
+            {required && (
+              <span className="ml-1 text-red-600" aria-hidden="true">
+                *
+              </span>
+            )}
           </label>
         )}
         <input
           ref={ref}
           id={inputId}
+          required={required}
           aria-invalid={Boolean(error)}
           aria-describedby={error || helperText ? messageId : undefined}
           className={cn(

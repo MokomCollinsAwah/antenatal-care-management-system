@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { UserRole } from "@/lib/constants";
+import { DEFAULT_TEMPORARY_PASSWORD, UserRole } from "@/lib/constants";
 import { hashPassword } from "@/lib/password";
 import { healthCentreExists } from "@/server/repositories/healthCentreRepository";
 import {
@@ -11,6 +11,7 @@ import {
   findPatientProfileByUserId,
   findPatients,
   findPregnantWomanConflict,
+  updatePatientPassword,
   updatePatientWithProfile,
   type PatientScope,
 } from "@/server/repositories/patientRepository";
@@ -18,6 +19,7 @@ import { recordAdminAudit } from "@/server/services/auditLogService";
 import { AdminServiceError } from "@/server/services/adminServiceError";
 import type {
   HealthWorkerOption,
+  BloodGroup,
   PatientListFilters,
   PatientSummary,
   UserRole as UserRoleValue,
@@ -34,7 +36,6 @@ interface CreatePatientServiceInput {
   fullName: string;
   phone: string;
   email?: string;
-  password: string;
   age: number;
   address: string;
   emergencyContactName?: string;
@@ -45,12 +46,12 @@ interface CreatePatientServiceInput {
   expectedDeliveryDate: Date;
   gravidity?: number;
   parity?: number;
-  bloodGroup?: string;
+  bloodGroup?: BloodGroup;
   riskNote?: string;
 }
 
 interface UpdatePatientServiceInput
-  extends Omit<CreatePatientServiceInput, "password"> {
+  extends CreatePatientServiceInput {
   status?: UserStatusValue;
 }
 
@@ -67,7 +68,7 @@ type PatientAggregate = {
   expectedDeliveryDate: Date;
   gravidity?: number;
   parity?: number;
-  bloodGroup?: string;
+  bloodGroup?: BloodGroup;
   riskNote?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -166,7 +167,8 @@ export async function createPatientRecord(
 
   const { profile } = await createPatientWithProfile({
     ...normalizePatient(input),
-    passwordHash: await hashPassword(input.password),
+    passwordHash: await hashPassword(DEFAULT_TEMPORARY_PASSWORD),
+    mustChangePassword: true,
     createdById: currentUser.id,
   });
 
@@ -209,6 +211,32 @@ export async function updatePatientRecord(
   });
 
   return { id: profile.id };
+}
+
+export async function resetPatientPassword(
+  id: string,
+  currentUser: CurrentUserScope,
+) {
+  const patient = await getPatientForUser(id, currentUser);
+  const user = await updatePatientPassword(
+    patient.userId,
+    await hashPassword(DEFAULT_TEMPORARY_PASSWORD),
+    true,
+  );
+
+  if (!user) {
+    throw new AdminServiceError("Patient account not found.", "NOT_FOUND");
+  }
+
+  await recordAdminAudit({
+    actorId: currentUser.id,
+    action: "PASSWORD_RESET",
+    entityType: "User",
+    entityId: patient.userId,
+    description: `Reset password for patient ${patient.fullName}.`,
+  });
+
+  return { id: patient.id };
 }
 
 async function assertAssignmentAllowed(

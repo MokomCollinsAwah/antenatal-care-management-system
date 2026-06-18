@@ -6,6 +6,7 @@ import PatientProfile from "@/models/PatientProfile";
 import User from "@/models/User";
 import type {
   PatientListFilters,
+  BloodGroup,
   UserRole as UserRoleValue,
   UserStatus as UserStatusValue,
 } from "@/types";
@@ -21,6 +22,7 @@ export interface CreatePatientInput {
   phone: string;
   email?: string;
   passwordHash: string;
+  mustChangePassword: boolean;
   age: number;
   address: string;
   emergencyContactName?: string;
@@ -31,12 +33,16 @@ export interface CreatePatientInput {
   expectedDeliveryDate: Date;
   gravidity?: number;
   parity?: number;
-  bloodGroup?: string;
+  bloodGroup?: BloodGroup;
   riskNote?: string;
   createdById: string;
 }
 
-export interface UpdatePatientInput extends Omit<CreatePatientInput, "passwordHash" | "createdById"> {
+export interface UpdatePatientInput
+  extends Omit<
+    CreatePatientInput,
+    "passwordHash" | "mustChangePassword" | "createdById"
+  > {
   status?: UserStatusValue;
 }
 
@@ -218,6 +224,7 @@ export async function createPatientWithProfile(input: CreatePatientInput) {
     passwordHash: input.passwordHash,
     role: UserRole.PREGNANT_WOMAN,
     status: UserStatus.ACTIVE,
+    mustChangePassword: input.mustChangePassword,
     healthCentreId: new Types.ObjectId(input.healthCentreId),
     createdById: new Types.ObjectId(input.createdById),
   });
@@ -286,4 +293,17 @@ export async function updatePatientWithProfile(
     { returnDocument: "after" },
   );
   return { user, profile };
+}
+
+export async function updatePatientPassword(
+  userId: string,
+  passwordHash: string,
+  mustChangePassword: boolean,
+) {
+  await connectDB();
+  return User.findOneAndUpdate(
+    { _id: userId, role: UserRole.PREGNANT_WOMAN },
+    { $set: { passwordHash, mustChangePassword } },
+    { returnDocument: "after" },
+  );
 }

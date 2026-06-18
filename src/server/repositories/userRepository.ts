@@ -9,6 +9,7 @@ export interface UserListFilters {
   search?: string;
   role?: UserRoleValue;
   status?: UserStatusValue;
+  healthCentreId?: string;
 }
 
 export interface CreateHealthWorkerInput {
@@ -16,6 +17,7 @@ export interface CreateHealthWorkerInput {
   phone: string;
   email?: string;
   passwordHash: string;
+  mustChangePassword: boolean;
   healthCentreId: string;
   createdById: string;
 }
@@ -41,9 +43,12 @@ export async function findUsers(filters: UserListFilters) {
   if (filters.status) {
     match.status = filters.status;
   }
+  if (filters.healthCentreId) {
+    match.healthCentreId = new Types.ObjectId(filters.healthCentreId);
+  }
   if (filters.search) {
     const search = new RegExp(escapeRegex(filters.search.trim()), "i");
-    match.$or = [{ fullName: search }, { phone: search }, { email: search }];
+    match.$or = [{ fullName: search }, { phone: search }];
   }
 
   return User.aggregate<{
@@ -138,6 +143,13 @@ export async function findUserConflict(
   return User.findOne(query).select("_id phone email").lean();
 }
 
+export async function findUserPasswordById(id: string) {
+  await connectDB();
+  return User.findById(id)
+    .select("_id fullName passwordHash mustChangePassword")
+    .lean();
+}
+
 export async function createHealthWorker(input: CreateHealthWorkerInput) {
   await connectDB();
 
@@ -148,6 +160,7 @@ export async function createHealthWorker(input: CreateHealthWorkerInput) {
     passwordHash: input.passwordHash,
     role: UserRole.HEALTH_WORKER,
     status: UserStatus.ACTIVE,
+    mustChangePassword: input.mustChangePassword,
     healthCentreId: new Types.ObjectId(input.healthCentreId),
     createdById: new Types.ObjectId(input.createdById),
   });
@@ -184,11 +197,28 @@ export async function updateUserStatus(id: string, status: UserStatusValue) {
   );
 }
 
-export async function updateUserPassword(id: string, passwordHash: string) {
+export async function updateUserPassword(
+  id: string,
+  passwordHash: string,
+  mustChangePassword: boolean,
+) {
   await connectDB();
   return User.findOneAndUpdate(
     { _id: id, role: UserRole.HEALTH_WORKER },
-    { $set: { passwordHash } },
+    { $set: { passwordHash, mustChangePassword } },
+    { returnDocument: "after" },
+  );
+}
+
+export async function updateOwnPassword(
+  id: string,
+  passwordHash: string,
+  mustChangePassword: boolean,
+) {
+  await connectDB();
+  return User.findByIdAndUpdate(
+    id,
+    { $set: { passwordHash, mustChangePassword } },
     { returnDocument: "after" },
   );
 }

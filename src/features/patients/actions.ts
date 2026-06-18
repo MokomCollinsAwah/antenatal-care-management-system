@@ -11,6 +11,7 @@ import {
 import { AdminServiceError } from "@/server/services/adminServiceError";
 import {
   createPatientRecord,
+  resetPatientPassword,
   updatePatientRecord,
 } from "@/server/services/patientService";
 import type { ActionResult, UserRole as UserRoleValue } from "@/types";
@@ -100,6 +101,28 @@ export async function updatePatientAction(
     return {
       success: true,
       message: "Patient profile updated successfully.",
+      data,
+    };
+  } catch (error) {
+    return actionFailure(error);
+  }
+}
+
+export async function resetPatientPasswordAction(
+  id: string,
+): Promise<ActionResult<{ id: string }>> {
+  const actor = await getCareTeamActor();
+  if (!actor.authorized) {
+    return actor.result;
+  }
+
+  try {
+    const data = await resetPatientPassword(id, actor.user);
+    revalidatePath("/patients");
+    revalidatePath(`/patients/${id}`);
+    return {
+      success: true,
+      message: "Patient password reset successfully.",
       data,
     };
   } catch (error) {

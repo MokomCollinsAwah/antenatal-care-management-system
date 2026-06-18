@@ -7,11 +7,7 @@ import {
   getAdminActor,
 } from "@/features/admin/action-utils";
 import { UserStatus } from "@/lib/constants";
-import {
-  createHealthWorkerSchema,
-  resetPasswordSchema,
-  updateHealthWorkerSchema,
-} from "@/lib/validations";
+import { createHealthWorkerSchema, updateHealthWorkerSchema } from "@/lib/validations";
 import {
   changeHealthWorkerStatus,
   createHealthWorkerRecord,
@@ -22,7 +18,6 @@ import type { ActionResult } from "@/types";
 
 type CreateHealthWorkerInput = z.infer<typeof createHealthWorkerSchema>;
 type UpdateHealthWorkerInput = z.infer<typeof updateHealthWorkerSchema>;
-type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
 export async function createHealthWorkerAction(
   input: CreateHealthWorkerInput,
@@ -110,24 +105,14 @@ export async function changeUserStatusAction(
 
 export async function resetPasswordAction(
   id: string,
-  input: ResetPasswordInput,
 ): Promise<ActionResult<{ id: string }>> {
   const actor = await getAdminActor();
   if (!actor.authorized) {
     return actor.result;
   }
 
-  const parsed = resetPasswordSchema.safeParse(input);
-  if (!parsed.success) {
-    return validationFailure(parsed.error.flatten().fieldErrors);
-  }
-
   try {
-    const data = await resetHealthWorkerPassword(
-      id,
-      parsed.data.password,
-      actor.userId,
-    );
+    const data = await resetHealthWorkerPassword(id, actor.userId);
     revalidatePath(`/admin/users/${id}`);
     return {
       success: true,

@@ -7,6 +7,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Pencil,
+  KeyRound,
   ScanLine,
   Stethoscope,
 } from "lucide-react";
@@ -71,6 +72,13 @@ export default async function PatientDetailsPage({
             >
               <Pencil className="size-4" />
               Edit Patient
+            </Link>
+            <Link
+              href={`/patients/${patient.id}/reset-password`}
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              <KeyRound className="size-4" />
+              Reset Password
             </Link>
           </div>
         }

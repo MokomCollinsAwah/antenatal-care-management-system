@@ -9,7 +9,7 @@ export interface TextareaProps
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, label, error, helperText, id, ...props }, ref) => {
+  ({ className, label, error, helperText, id, required, ...props }, ref) => {
     const generatedId = useId();
     const textareaId = id ?? generatedId;
 
@@ -21,11 +21,17 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             className="block text-sm font-medium text-slate-700"
           >
             {label}
+            {required && (
+              <span className="ml-1 text-red-600" aria-hidden="true">
+                *
+              </span>
+            )}
           </label>
         )}
         <textarea
           ref={ref}
           id={textareaId}
+          required={required}
           aria-invalid={Boolean(error)}
           className={cn(
             "min-h-28 w-full min-w-0 resize-y rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base leading-normal text-slate-900 shadow-sm outline-none transition placeholder:text-slate-500 focus:border-teal-600 focus:ring-2 focus:ring-teal-100 disabled:bg-slate-100 sm:text-sm",

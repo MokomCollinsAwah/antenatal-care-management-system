@@ -69,7 +69,6 @@ function CreateForm({
       fullName: "",
       phone: "",
       email: "",
-      password: "",
       healthCentreId: "",
     },
   });
@@ -92,12 +91,17 @@ function CreateForm({
     >
       <Input
         label="Full Name"
+        required
         placeholder="Enter full name"
         error={errors.fullName?.message ?? result?.errors?.fullName?.[0]}
         {...register("fullName")}
       />
       <Input
         label="Phone"
+        required
+        inputMode="numeric"
+        maxLength={9}
+        pattern="\d{9}"
         placeholder="e.g. 670000002"
         error={errors.phone?.message ?? result?.errors?.phone?.[0]}
         {...register("phone")}
@@ -109,16 +113,9 @@ function CreateForm({
         error={errors.email?.message ?? result?.errors?.email?.[0]}
         {...register("email")}
       />
-      <Input
-        label="Password"
-        type="password"
-        placeholder="Minimum 8 characters"
-        autoComplete="new-password"
-        error={errors.password?.message ?? result?.errors?.password?.[0]}
-        {...register("password")}
-      />
       <Select
         label="Health Centre"
+        required
         placeholder="Select a health centre"
         options={healthCentres}
         error={
@@ -169,12 +166,17 @@ function EditForm({
     >
       <Input
         label="Full Name"
+        required
         placeholder="Enter full name"
         error={errors.fullName?.message ?? result?.errors?.fullName?.[0]}
         {...register("fullName")}
       />
       <Input
         label="Phone"
+        required
+        inputMode="numeric"
+        maxLength={9}
+        pattern="\d{9}"
         placeholder="e.g. 670000002"
         error={errors.phone?.message ?? result?.errors?.phone?.[0]}
         {...register("phone")}
@@ -188,6 +190,7 @@ function EditForm({
       />
       <Select
         label="Health Centre"
+        required
         placeholder="Select a health centre"
         options={healthCentres}
         error={
@@ -198,6 +201,7 @@ function EditForm({
       />
       <Select
         label="Status"
+        required
         options={USER_STATUS_OPTIONS}
         error={errors.status?.message ?? result?.errors?.status?.[0]}
         {...register("status")}
@@ -220,7 +224,7 @@ function WorkerFormLayout({
   cancelHref: string;
 }) {
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-6" noValidate>
       <FeedbackAlert message={result?.message} success={result?.success} />
       <FormSection
         title="Health worker information"

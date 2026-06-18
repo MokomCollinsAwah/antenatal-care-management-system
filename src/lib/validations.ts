@@ -1,12 +1,14 @@
 import { z } from "zod";
 import {
   AppointmentType,
+  BLOOD_GROUP_VALUES,
   FollowUpMethod,
   FollowUpOutcome,
   SupplementStatus,
   UserRole,
   UserStatus,
   AppointmentStatus,
+  DEFAULT_TEMPORARY_PASSWORD,
   ReminderStatus,
 } from "@/lib/constants";
 
@@ -21,21 +23,25 @@ const optionalDate = z.preprocess(
 const phoneSchema = z
   .string()
   .trim()
-  .regex(
-    /^[+0-9()\-\s]{7,20}$/,
-    "Enter a valid phone number using 7 to 20 digits or phone symbols",
-  );
+  .regex(/^\d{9}$/, "Enter a valid 9-digit phone number");
 const optionalPhoneSchema = z
   .string()
   .trim()
   .refine(
-    (value) => value === "" || /^[+0-9()\-\s]{7,20}$/.test(value),
-    "Enter a valid phone number using 7 to 20 digits or phone symbols",
+    (value) => value === "" || /^\d{9}$/.test(value),
+    "Enter a valid 9-digit phone number",
   )
   .optional();
 const optionalEmailSchema = z
   .union([z.email("Enter a valid email"), z.literal("")])
   .optional();
+const optionalBloodGroupSchema = z
+  .union([
+    z.enum(BLOOD_GROUP_VALUES, { error: "Select a valid blood group" }),
+    z.literal(""),
+  ])
+  .optional()
+  .transform((value) => value || undefined);
 
 export const loginSchema = z.object({
   identifier: requiredText("Phone or email is required"),
@@ -63,7 +69,6 @@ export const createHealthWorkerSchema = z.object({
   fullName: requiredText("Full name is required"),
   phone: phoneSchema,
   email: optionalEmailSchema,
-  password: z.string().min(8, "Password must be at least 8 characters"),
   healthCentreId: requiredText("Health centre is required"),
 });
 
@@ -85,6 +90,21 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: requiredText("Current password is required"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: requiredText("Please confirm the new password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
+  .refine((data) => data.password !== DEFAULT_TEMPORARY_PASSWORD, {
+    message: "Choose a password different from the default password",
+    path: ["password"],
+  });
+
 const patientBaseSchema = {
   fullName: requiredText("Full name is required"),
   phone: phoneSchema,
@@ -99,7 +119,7 @@ const patientBaseSchema = {
   expectedDeliveryDate: requiredDate("Expected delivery date is required"),
   gravidity: z.coerce.number().int().min(0).optional(),
   parity: z.coerce.number().int().min(0).optional(),
-  bloodGroup: optionalText,
+  bloodGroup: optionalBloodGroupSchema,
   riskNote: optionalText,
 };
 
@@ -112,12 +132,6 @@ const deliveryDateAfterLmp = <
 export const createPatientWithProfileSchema = z
   .object({
     ...patientBaseSchema,
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: requiredText("Please confirm the temporary password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
   })
   .refine(deliveryDateAfterLmp, {
     message: "Expected delivery date must be after the last menstrual period",
@@ -146,7 +160,7 @@ export const createPatientProfileSchema = z
     expectedDeliveryDate: requiredDate("Expected delivery date is required"),
     gravidity: z.coerce.number().int().min(0).optional(),
     parity: z.coerce.number().int().min(0).optional(),
-    bloodGroup: optionalText,
+    bloodGroup: optionalBloodGroupSchema,
     riskNote: optionalText,
   })
   .refine(

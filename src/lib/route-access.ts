@@ -27,6 +27,9 @@ export const isPublicRoute = (pathname: string) => pathname === "/";
 export const isAuthRoute = (pathname: string) =>
   matchesRoute(pathname, "/login");
 
+export const isPasswordChangeRoute = (pathname: string) =>
+  matchesRoute(pathname, "/change-password");
+
 export const isAdminRoute = (pathname: string) =>
   ADMIN_ROUTES.some((route) => matchesRoute(pathname, route));
 
@@ -41,6 +44,10 @@ export function canRoleAccessPath(
   role: UserRoleValue,
   pathname: string,
 ): boolean {
+  if (isPasswordChangeRoute(pathname)) {
+    return true;
+  }
+
   if (isPortalRoute(pathname)) {
     return role === UserRole.PREGNANT_WOMAN;
   }

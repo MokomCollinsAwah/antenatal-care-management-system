@@ -34,13 +34,13 @@ export function ScanForm({ patients, healthCentres, initialPatientId }: { patien
     }
   };
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit as Parameters<typeof handleSubmit>[0])}>
+    <form className="space-y-6" onSubmit={handleSubmit(onSubmit as Parameters<typeof handleSubmit>[0])} noValidate>
       <FeedbackAlert message={result?.message} success={result?.success} />
       <FormSection title="Scan Information">
         <div className="grid gap-5 md:grid-cols-2">
-          <Select label="Patient" placeholder="Select patient" options={patients} error={errors.patientId?.message ?? result?.errors?.patientId?.[0]} {...register("patientId")} />
-          <Input label="Scan Date" type="date" error={errors.scanDate?.message ?? result?.errors?.scanDate?.[0]} {...register("scanDate")} />
-          <Input label="Scan Type" error={errors.scanType?.message ?? result?.errors?.scanType?.[0]} {...register("scanType")} />
+          <Select label="Patient" required placeholder="Select patient" options={patients} error={errors.patientId?.message ?? result?.errors?.patientId?.[0]} {...register("patientId")} />
+          <Input label="Scan Date" required type="date" error={errors.scanDate?.message ?? result?.errors?.scanDate?.[0]} {...register("scanDate")} />
+          <Input label="Scan Type" required error={errors.scanType?.message ?? result?.errors?.scanType?.[0]} {...register("scanType")} />
           <Select label="Health Centre (optional)" placeholder="Use patient's health centre" options={healthCentres} error={errors.healthCentreId?.message ?? result?.errors?.healthCentreId?.[0]} {...register("healthCentreId")} />
           <Input label="Next Scan Date (optional)" type="date" error={errors.nextScanDate?.message ?? result?.errors?.nextScanDate?.[0]} {...register("nextScanDate")} />
           <Textarea label="Result Note (brief note only)" helperText="Do not record diagnostic conclusions here." error={errors.resultNote?.message ?? result?.errors?.resultNote?.[0]} {...register("resultNote")} />

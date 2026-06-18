@@ -56,7 +56,7 @@ export function HealthCentreForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       <FeedbackAlert
         message={result?.message}
         success={result?.success}
@@ -68,18 +68,23 @@ export function HealthCentreForm({
         <div className="grid gap-5 md:grid-cols-2">
           <Input
             label="Name"
+            required
             placeholder="e.g. Molyko Integrated Health Centre"
             error={errors.name?.message ?? result?.errors?.name?.[0]}
             {...register("name")}
           />
           <Input
             label="Location"
+            required
             placeholder="e.g. Molyko, Buea"
             error={errors.location?.message ?? result?.errors?.location?.[0]}
             {...register("location")}
           />
           <Input
             label="Phone (optional)"
+            inputMode="numeric"
+            maxLength={9}
+            pattern="\d{9}"
             placeholder="e.g. 670100100"
             error={errors.phone?.message ?? result?.errors?.phone?.[0]}
             {...register("phone")}

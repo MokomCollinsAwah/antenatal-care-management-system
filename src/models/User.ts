@@ -6,6 +6,7 @@ export interface IUser extends Document {
   phone: string;
   email?: string;
   passwordHash: string;
+  mustChangePassword: boolean;
   role: UserRole;
   status: UserStatus;
   healthCentreId?: Types.ObjectId;
@@ -26,6 +27,7 @@ const UserSchema = new Schema<IUser>(
       sparse: true,
     },
     passwordHash: { type: String, required: true, select: false },
+    mustChangePassword: { type: Boolean, default: false },
     role: { type: String, enum: Object.values(UserRole), required: true },
     status: {
       type: String,

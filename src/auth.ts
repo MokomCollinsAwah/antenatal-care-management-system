@@ -74,6 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email ?? "",
           role: user.role,
           status: user.status,
+          mustChangePassword: user.mustChangePassword,
           healthCentreId: user.healthCentreId?.toString(),
         };
       },
@@ -95,6 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email;
         token.role = user.role;
         token.status = user.status;
+        token.mustChangePassword = user.mustChangePassword;
         token.healthCentreId = user.healthCentreId;
       }
 
@@ -107,6 +109,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const phone = typeof token.phone === "string" ? token.phone : "";
       const role = token.role as UserRole;
       const status = token.status as UserStatus;
+      const mustChangePassword =
+        typeof token.mustChangePassword === "boolean"
+          ? token.mustChangePassword
+          : false;
 
       if (
         !id ||
@@ -125,6 +131,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.email = typeof token.email === "string" ? token.email : "";
       session.user.role = role;
       session.user.status = status;
+      session.user.mustChangePassword = mustChangePassword;
       session.user.healthCentreId =
         typeof token.healthCentreId === "string"
           ? token.healthCentreId

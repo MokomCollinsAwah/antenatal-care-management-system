@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import type {
+  FieldErrors,
+  UseFormRegister,
+} from "react-hook-form";
 import {
   createPatientAction,
   updatePatientAction,
@@ -17,7 +20,11 @@ import { FormSection } from "@/components/ui/FormSection";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { USER_STATUS_OPTIONS, UserStatus } from "@/lib/constants";
+import {
+  BLOOD_GROUP_OPTIONS,
+  USER_STATUS_OPTIONS,
+  UserStatus,
+} from "@/lib/constants";
 import {
   createPatientWithProfileSchema,
   updatePatientWithProfileSchema,
@@ -60,12 +67,15 @@ export function PatientForm(props: PatientFormProps) {
 function CreatePatientForm({
   healthCentres,
   healthWorkers,
+  isAdmin,
 }: Extract<PatientFormProps, { mode: "create" }>) {
   const router = useRouter();
   const [result, setResult] = useState<ActionResult<{ id: string }>>();
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreateValues>({
     resolver: zodResolver(createPatientWithProfileSchema),
@@ -73,8 +83,6 @@ function CreatePatientForm({
       fullName: "",
       phone: "",
       email: "",
-      password: "",
-      confirmPassword: "",
       age: 18,
       address: "",
       emergencyContactName: "",
@@ -98,15 +106,28 @@ function CreatePatientForm({
       router.refresh();
     }
   };
+  const selectedHealthCentreId = useWatch({ control, name: "healthCentreId" });
+  const selectedHealthWorkerId = useWatch({
+    control,
+    name: "assignedHealthWorkerId",
+  });
+
+  useScopedAssignment({
+    healthCentres,
+    healthWorkers,
+    isAdmin,
+    selectedHealthCentreId,
+    selectedHealthWorkerId,
+    setAssignmentValue: (name, value) => setValue(name, value),
+  });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       <FeedbackAlert message={result?.message} success={result?.success} />
       <AccountFields
         register={register}
         errors={errors}
         serverErrors={result?.errors}
-        includePassword
       />
       <PersonalFields register={register} errors={errors} serverErrors={result?.errors} />
       <AntenatalFields
@@ -115,6 +136,8 @@ function CreatePatientForm({
         serverErrors={result?.errors}
         healthCentres={healthCentres}
         healthWorkers={healthWorkers}
+        isAdmin={isAdmin}
+        selectedHealthCentreId={selectedHealthCentreId}
       />
       <FormActions cancelHref="/patients" loading={isSubmitting} />
     </form>
@@ -132,6 +155,8 @@ function EditPatientForm({
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<UpdateValues>({
     resolver: zodResolver(updatePatientWithProfileSchema),
@@ -166,11 +191,26 @@ function EditPatientForm({
       router.refresh();
     }
   };
+  const selectedHealthCentreId = useWatch({ control, name: "healthCentreId" });
+  const selectedHealthWorkerId = useWatch({
+    control,
+    name: "assignedHealthWorkerId",
+  });
+
+  useScopedAssignment({
+    healthCentres,
+    healthWorkers,
+    isAdmin,
+    selectedHealthCentreId,
+    selectedHealthWorkerId,
+    setAssignmentValue: (name, value) => setValue(name, value),
+  });
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit as Parameters<typeof handleSubmit>[0])}
       className="space-y-6"
+      noValidate
     >
       <FeedbackAlert message={result?.message} success={result?.success} />
       <AccountFields
@@ -197,6 +237,8 @@ function EditPatientForm({
         serverErrors={result?.errors}
         healthCentres={healthCentres}
         healthWorkers={healthWorkers}
+        isAdmin={isAdmin}
+        selectedHealthCentreId={selectedHealthCentreId}
       />
       <FormActions cancelHref={`/patients/${patient.id}`} loading={isSubmitting} />
     </form>
@@ -207,25 +249,17 @@ function AccountFields({
   register,
   errors,
   serverErrors,
-  includePassword = false,
 }: {
   register: CreateRegister;
   errors: CreateErrors;
   serverErrors?: Record<string, string[]>;
-  includePassword?: boolean;
 }) {
   return (
     <FormSection title="Account Information">
       <div className="grid gap-5 md:grid-cols-2">
-        <Input label="Full Name" error={errors.fullName?.message ?? serverErrors?.fullName?.[0]} {...register("fullName")} />
-        <Input label="Phone" error={errors.phone?.message ?? serverErrors?.phone?.[0]} {...register("phone")} />
+        <Input label="Full Name" required error={errors.fullName?.message ?? serverErrors?.fullName?.[0]} {...register("fullName")} />
+        <Input label="Phone" required inputMode="numeric" maxLength={9} pattern="\d{9}" error={errors.phone?.message ?? serverErrors?.phone?.[0]} {...register("phone")} />
         <Input label="Email (optional)" type="email" error={errors.email?.message ?? serverErrors?.email?.[0]} {...register("email")} />
-        {includePassword && (
-          <>
-            <Input label="Temporary Password" type="password" error={errors.password?.message ?? serverErrors?.password?.[0]} {...register("password")} />
-            <Input label="Confirm Temporary Password" type="password" error={errors.confirmPassword?.message ?? serverErrors?.confirmPassword?.[0]} {...register("confirmPassword")} />
-          </>
-        )}
       </div>
     </FormSection>
   );
@@ -243,10 +277,10 @@ function PersonalFields({
   return (
     <FormSection title="Personal Information">
       <div className="grid gap-5 md:grid-cols-2">
-        <Input label="Age" type="number" min={10} error={errors.age?.message ?? serverErrors?.age?.[0]} {...register("age")} />
-        <Input label="Address / Quarter" error={errors.address?.message ?? serverErrors?.address?.[0]} {...register("address")} />
+        <Input label="Age" required type="number" min={10} error={errors.age?.message ?? serverErrors?.age?.[0]} {...register("age")} />
+        <Input label="Address / Quarter" required error={errors.address?.message ?? serverErrors?.address?.[0]} {...register("address")} />
         <Input label="Emergency Contact Name (optional)" error={errors.emergencyContactName?.message ?? serverErrors?.emergencyContactName?.[0]} {...register("emergencyContactName")} />
-        <Input label="Emergency Contact Phone (optional)" error={errors.emergencyContactPhone?.message ?? serverErrors?.emergencyContactPhone?.[0]} {...register("emergencyContactPhone")} />
+        <Input label="Emergency Contact Phone (optional)" inputMode="numeric" maxLength={9} pattern="\d{9}" error={errors.emergencyContactPhone?.message ?? serverErrors?.emergencyContactPhone?.[0]} {...register("emergencyContactPhone")} />
       </div>
     </FormSection>
   );
@@ -258,27 +292,126 @@ function AntenatalFields({
   serverErrors,
   healthCentres,
   healthWorkers,
+  isAdmin,
+  selectedHealthCentreId,
 }: {
   register: CreateRegister;
   errors: CreateErrors;
   serverErrors?: Record<string, string[]>;
   healthCentres: HealthCentreOption[];
   healthWorkers: HealthWorkerOption[];
+  isAdmin: boolean;
+  selectedHealthCentreId?: string;
 }) {
+  const scopedHealthCentreIds = new Set(
+    healthWorkers
+      .map((worker) => worker.healthCentreId)
+      .filter((id): id is string => Boolean(id)),
+  );
+  const availableHealthCentres =
+    isAdmin || scopedHealthCentreIds.size === 0
+      ? healthCentres
+      : healthCentres.filter((centre) =>
+          scopedHealthCentreIds.has(centre.value),
+        );
+  const availableHealthWorkers = selectedHealthCentreId
+    ? healthWorkers.filter(
+        (worker) => worker.healthCentreId === selectedHealthCentreId,
+      )
+    : [];
+  const workerPlaceholder = selectedHealthCentreId
+    ? availableHealthWorkers.length > 0
+      ? "Select health worker"
+      : "No workers for selected centre"
+    : "Select health centre first";
+
   return (
     <FormSection title="Antenatal Information">
       <div className="grid gap-5 md:grid-cols-2">
-        <Select label="Health Centre" placeholder="Select health centre" options={healthCentres} error={errors.healthCentreId?.message ?? serverErrors?.healthCentreId?.[0]} {...register("healthCentreId")} />
-        <Select label="Assigned Health Worker" placeholder="Select health worker" options={healthWorkers} error={errors.assignedHealthWorkerId?.message ?? serverErrors?.assignedHealthWorkerId?.[0]} {...register("assignedHealthWorkerId")} />
-        <Input label="Last Menstrual Period" type="date" error={errors.lastMenstrualPeriod?.message ?? serverErrors?.lastMenstrualPeriod?.[0]} {...register("lastMenstrualPeriod")} />
-        <Input label="Expected Delivery Date" type="date" error={errors.expectedDeliveryDate?.message ?? serverErrors?.expectedDeliveryDate?.[0]} {...register("expectedDeliveryDate")} />
+        <Select label="Health Centre" required placeholder="Select health centre" options={availableHealthCentres} error={errors.healthCentreId?.message ?? serverErrors?.healthCentreId?.[0]} {...register("healthCentreId")} />
+        <Select label="Assigned Health Worker" required placeholder={workerPlaceholder} options={availableHealthWorkers} disabled={!selectedHealthCentreId || availableHealthWorkers.length === 0} error={errors.assignedHealthWorkerId?.message ?? serverErrors?.assignedHealthWorkerId?.[0]} {...register("assignedHealthWorkerId")} />
+        <Input label="Last Menstrual Period" required type="date" error={errors.lastMenstrualPeriod?.message ?? serverErrors?.lastMenstrualPeriod?.[0]} {...register("lastMenstrualPeriod")} />
+        <Input label="Expected Delivery Date" required type="date" error={errors.expectedDeliveryDate?.message ?? serverErrors?.expectedDeliveryDate?.[0]} {...register("expectedDeliveryDate")} />
         <Input label="Gravidity (optional)" type="number" min={0} error={errors.gravidity?.message ?? serverErrors?.gravidity?.[0]} {...register("gravidity")} />
         <Input label="Parity (optional)" type="number" min={0} error={errors.parity?.message ?? serverErrors?.parity?.[0]} {...register("parity")} />
-        <Input label="Blood Group (optional)" error={errors.bloodGroup?.message ?? serverErrors?.bloodGroup?.[0]} {...register("bloodGroup")} />
+        <Select label="Blood Group (optional)" placeholder="Select blood group" options={BLOOD_GROUP_OPTIONS} error={errors.bloodGroup?.message ?? serverErrors?.bloodGroup?.[0]} {...register("bloodGroup")} />
         <Textarea label="Risk Note (optional)" error={errors.riskNote?.message ?? serverErrors?.riskNote?.[0]} {...register("riskNote")} />
       </div>
     </FormSection>
   );
+}
+
+function useScopedAssignment({
+  healthCentres,
+  healthWorkers,
+  isAdmin,
+  selectedHealthCentreId,
+  selectedHealthWorkerId,
+  setAssignmentValue,
+}: {
+  healthCentres: HealthCentreOption[];
+  healthWorkers: HealthWorkerOption[];
+  isAdmin: boolean;
+  selectedHealthCentreId?: string;
+  selectedHealthWorkerId?: string;
+  setAssignmentValue: (
+    name: "healthCentreId" | "assignedHealthWorkerId",
+    value: string,
+  ) => void;
+}) {
+  useEffect(() => {
+    if (selectedHealthCentreId || isAdmin || healthWorkers.length !== 1) {
+      return;
+    }
+
+    const workerHealthCentreId = healthWorkers[0].healthCentreId;
+    if (
+      workerHealthCentreId &&
+      healthCentres.some((centre) => centre.value === workerHealthCentreId)
+    ) {
+      setAssignmentValue("healthCentreId", workerHealthCentreId);
+    }
+  }, [
+    healthCentres,
+    healthWorkers,
+    isAdmin,
+    selectedHealthCentreId,
+    setAssignmentValue,
+  ]);
+
+  useEffect(() => {
+    if (!selectedHealthCentreId) {
+      if (selectedHealthWorkerId) {
+        setAssignmentValue("assignedHealthWorkerId", "");
+      }
+      return;
+    }
+
+    const workerIsInCentre = healthWorkers.some(
+      (worker) =>
+        worker.value === selectedHealthWorkerId &&
+        worker.healthCentreId === selectedHealthCentreId,
+    );
+
+    if (selectedHealthWorkerId && !workerIsInCentre) {
+      setAssignmentValue("assignedHealthWorkerId", "");
+    }
+
+    if (
+      !isAdmin &&
+      !selectedHealthWorkerId &&
+      healthWorkers.length === 1 &&
+      healthWorkers[0].healthCentreId === selectedHealthCentreId
+    ) {
+      setAssignmentValue("assignedHealthWorkerId", healthWorkers[0].value);
+    }
+  }, [
+    healthWorkers,
+    isAdmin,
+    selectedHealthCentreId,
+    selectedHealthWorkerId,
+    setAssignmentValue,
+  ]);
 }
 
 function FormActions({ cancelHref, loading }: { cancelHref: string; loading: boolean }) {

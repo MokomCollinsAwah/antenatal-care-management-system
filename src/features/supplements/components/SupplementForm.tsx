@@ -35,17 +35,17 @@ export function SupplementForm({ patients, initialPatientId }: { patients: Patie
     }
   };
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit as Parameters<typeof handleSubmit>[0])}>
+    <form className="space-y-6" onSubmit={handleSubmit(onSubmit as Parameters<typeof handleSubmit>[0])} noValidate>
       <FeedbackAlert message={result?.message} success={result?.success} />
       <FormSection title="Supplement Information">
         <div className="grid gap-5 md:grid-cols-2">
-          <Select label="Patient" placeholder="Select patient" options={patients} error={errors.patientId?.message ?? result?.errors?.patientId?.[0]} {...register("patientId")} />
-          <Input label="Supplement Name" error={errors.supplementName?.message ?? result?.errors?.supplementName?.[0]} {...register("supplementName")} />
-          <Input label="Dosage" error={errors.dosage?.message ?? result?.errors?.dosage?.[0]} {...register("dosage")} />
-          <Input label="Frequency" error={errors.frequency?.message ?? result?.errors?.frequency?.[0]} {...register("frequency")} />
-          <Input label="Start Date" type="date" error={errors.startDate?.message ?? result?.errors?.startDate?.[0]} {...register("startDate")} />
+          <Select label="Patient" required placeholder="Select patient" options={patients} error={errors.patientId?.message ?? result?.errors?.patientId?.[0]} {...register("patientId")} />
+          <Input label="Supplement Name" required error={errors.supplementName?.message ?? result?.errors?.supplementName?.[0]} {...register("supplementName")} />
+          <Input label="Dosage" required error={errors.dosage?.message ?? result?.errors?.dosage?.[0]} {...register("dosage")} />
+          <Input label="Frequency" required error={errors.frequency?.message ?? result?.errors?.frequency?.[0]} {...register("frequency")} />
+          <Input label="Start Date" required type="date" error={errors.startDate?.message ?? result?.errors?.startDate?.[0]} {...register("startDate")} />
           <Input label="End Date (optional)" type="date" error={errors.endDate?.message ?? result?.errors?.endDate?.[0]} {...register("endDate")} />
-          <Select label="Status" options={SUPPLEMENT_STATUS_OPTIONS} error={errors.status?.message ?? result?.errors?.status?.[0]} {...register("status")} />
+          <Select label="Status" required options={SUPPLEMENT_STATUS_OPTIONS} error={errors.status?.message ?? result?.errors?.status?.[0]} {...register("status")} />
           <Textarea label="Instructions (optional)" error={errors.instructions?.message ?? result?.errors?.instructions?.[0]} {...register("instructions")} />
         </div>
       </FormSection>

@@ -5,20 +5,16 @@ import { Input } from "@/components/ui/Input";
 import { Pagination } from "@/components/ui/Pagination";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
+import { getHealthCentresForSelect } from "@/features/admin/health-centres/queries";
 import { UserTable } from "@/features/admin/users/components/UserTable";
 import { getUsers } from "@/features/admin/users/queries";
-import {
-  ROLE_OPTIONS,
-  USER_STATUS_OPTIONS,
-  UserRole,
-  UserStatus,
-} from "@/lib/constants";
+import { USER_STATUS_OPTIONS, UserRole, UserStatus } from "@/lib/constants";
 import { getPageNumber, paginate } from "@/lib/pagination";
 
 interface UsersPageProps {
   searchParams: Promise<{
     search?: string;
-    role?: string;
+    healthCentreId?: string;
     status?: string;
     page?: string | string[];
   }>;
@@ -28,24 +24,25 @@ export default async function AdminUsersPage({
   searchParams,
 }: UsersPageProps) {
   const params = await searchParams;
-  const role = Object.values(UserRole).includes(params.role as UserRole)
-    ? (params.role as UserRole)
-    : undefined;
   const status = Object.values(UserStatus).includes(params.status as UserStatus)
     ? (params.status as UserStatus)
     : undefined;
-  const users = await getUsers({
+  const [users, healthCentres] = await Promise.all([
+    getUsers({
     search: params.search?.trim() || undefined,
-    role,
+      role: UserRole.HEALTH_WORKER,
+      healthCentreId: params.healthCentreId || undefined,
     status,
-  });
+    }),
+    getHealthCentresForSelect(),
+  ]);
   const page = paginate(users, getPageNumber(params.page));
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Users"
-        description="Manage system users and health worker accounts."
+        title="Health Workers"
+        description="Manage health worker accounts and facility assignments."
         action={
           <Link
             href="/admin/users/new"
@@ -62,15 +59,15 @@ export default async function AdminUsersPage({
             <Input
               name="search"
               defaultValue={params.search}
-              placeholder="Search name, phone, or email"
-              aria-label="Search users"
+              placeholder="Search name or phone"
+              aria-label="Search health workers"
             />
             <Select
-              name="role"
-              defaultValue={role}
-              placeholder="All roles"
-              options={ROLE_OPTIONS}
-              aria-label="Filter by role"
+              name="healthCentreId"
+              defaultValue={params.healthCentreId}
+              placeholder="All health centres"
+              options={healthCentres}
+              aria-label="Filter by health centre"
             />
             <Select
               name="status"

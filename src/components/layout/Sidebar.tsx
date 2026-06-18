@@ -37,7 +37,7 @@ const workspaceNavigation: NavItem[] = [
 ];
 
 const adminNavigation: NavItem[] = [
-  { label: "Admin Users", href: "/admin/users", icon: ShieldCheck },
+  { label: "Health Workers", href: "/admin/users", icon: ShieldCheck },
   { label: "Health Centres", href: "/admin/health-centres", icon: Building2 },
   { label: "Audit Logs", href: "/admin/audit-logs", icon: ClipboardList },
 ];

@@ -7,6 +7,7 @@ declare module "next-auth" {
     phone: string;
     role: UserRole;
     status: UserStatus;
+    mustChangePassword: boolean;
     healthCentreId?: string;
   }
 
@@ -18,6 +19,7 @@ declare module "next-auth" {
       email: string;
       role: UserRole;
       status: UserStatus;
+      mustChangePassword: boolean;
       healthCentreId?: string;
     } & DefaultSession["user"];
   }
@@ -31,6 +33,7 @@ declare module "next-auth/jwt" {
     email: string;
     role: UserRole;
     status: UserStatus;
+    mustChangePassword: boolean;
     healthCentreId?: string;
   }
 }

@@ -35,13 +35,13 @@ export function AppointmentForm({ patients, initialPatientId }: { patients: Pati
     }
   };
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit as Parameters<typeof handleSubmit>[0])}>
+    <form className="space-y-6" onSubmit={handleSubmit(onSubmit as Parameters<typeof handleSubmit>[0])} noValidate>
       <FeedbackAlert message={result?.message} success={result?.success} />
       <FormSection title="Appointment Information">
         <div className="grid gap-5 md:grid-cols-2">
-          <Select label="Patient" placeholder="Select patient" options={patients} error={errors.patientId?.message ?? result?.errors?.patientId?.[0]} {...register("patientId")} />
-          <Select label="Appointment Type" options={APPOINTMENT_TYPE_OPTIONS} error={errors.appointmentType?.message ?? result?.errors?.appointmentType?.[0]} {...register("appointmentType")} />
-          <Input label="Scheduled Date and Time" type="datetime-local" error={errors.scheduledDateTime?.message ?? result?.errors?.scheduledDateTime?.[0]} {...register("scheduledDateTime")} />
+          <Select label="Patient" required placeholder="Select patient" options={patients} error={errors.patientId?.message ?? result?.errors?.patientId?.[0]} {...register("patientId")} />
+          <Select label="Appointment Type" required options={APPOINTMENT_TYPE_OPTIONS} error={errors.appointmentType?.message ?? result?.errors?.appointmentType?.[0]} {...register("appointmentType")} />
+          <Input label="Scheduled Date and Time" required type="datetime-local" error={errors.scheduledDateTime?.message ?? result?.errors?.scheduledDateTime?.[0]} {...register("scheduledDateTime")} />
           <Input label="Reason (optional)" error={errors.reason?.message ?? result?.errors?.reason?.[0]} {...register("reason")} />
           <Textarea label="Notes (optional)" error={errors.notes?.message ?? result?.errors?.notes?.[0]} {...register("notes")} />
         </div>

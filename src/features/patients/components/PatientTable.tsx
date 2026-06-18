@@ -78,6 +78,12 @@ export function PatientTable({ patients }: { patients: PatientSummary[] }) {
                   >
                     Edit
                   </Link>
+                  <Link
+                    href={`/patients/${patient.id}/reset-password`}
+                    className="font-semibold text-slate-600 hover:text-slate-900"
+                  >
+                    Reset Password
+                  </Link>
                 </div>
               </td>
             </tr>

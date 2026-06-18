@@ -33,13 +33,13 @@ export function VisitForm({ appointment }: { appointment: AppointmentSummary }) 
     }
   };
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
       <FeedbackAlert message={result?.message} success={result?.success} />
       <FormSection title="Visit Record" description="Record observations entered by the health worker. This does not diagnose complications.">
         <input type="hidden" {...register("appointmentId")} />
         <input type="hidden" {...register("patientId")} />
         <div className="grid gap-5 md:grid-cols-2">
-          <Input label="Visit Date" type="date" error={errors.visitDate?.message ?? result?.errors?.visitDate?.[0]} {...register("visitDate")} />
+          <Input label="Visit Date" required type="date" error={errors.visitDate?.message ?? result?.errors?.visitDate?.[0]} {...register("visitDate")} />
           <Input label="Weight Kg (optional)" type="number" step="0.1" error={errors.weightKg?.message ?? result?.errors?.weightKg?.[0]} {...register("weightKg")} />
           <Input label="Systolic BP (optional)" type="number" error={errors.systolicBP?.message ?? result?.errors?.systolicBP?.[0]} {...register("systolicBP")} />
           <Input label="Diastolic BP (optional)" type="number" error={errors.diastolicBP?.message ?? result?.errors?.diastolicBP?.[0]} {...register("diastolicBP")} />

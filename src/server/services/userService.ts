@@ -1,5 +1,9 @@
 import { Types } from "mongoose";
-import { UserRole, UserStatus } from "@/lib/constants";
+import {
+  DEFAULT_TEMPORARY_PASSWORD,
+  UserRole,
+  UserStatus,
+} from "@/lib/constants";
 import { hashPassword } from "@/lib/password";
 import { healthCentreExists } from "@/server/repositories/healthCentreRepository";
 import {
@@ -20,7 +24,6 @@ interface CreateHealthWorkerServiceInput {
   fullName: string;
   phone: string;
   email?: string;
-  password: string;
   healthCentreId: string;
 }
 
@@ -81,7 +84,8 @@ export async function createHealthWorkerRecord(
     fullName: input.fullName.trim(),
     phone: input.phone.trim(),
     email: normalizeEmail(input.email),
-    passwordHash: await hashPassword(input.password),
+    passwordHash: await hashPassword(DEFAULT_TEMPORARY_PASSWORD),
+    mustChangePassword: true,
     healthCentreId: input.healthCentreId,
     createdById: actorId,
   });
@@ -155,14 +159,17 @@ export async function changeHealthWorkerStatus(
 
 export async function resetHealthWorkerPassword(
   id: string,
-  password: string,
   actorId: string,
 ) {
   assertObjectId(id);
   const existing = await getUser(id);
   assertHealthWorker(existing.role);
 
-  const user = await updateUserPassword(id, await hashPassword(password));
+  const user = await updateUserPassword(
+    id,
+    await hashPassword(DEFAULT_TEMPORARY_PASSWORD),
+    true,
+  );
   if (!user) {
     throw new AdminServiceError("Health worker not found.", "NOT_FOUND");
   }

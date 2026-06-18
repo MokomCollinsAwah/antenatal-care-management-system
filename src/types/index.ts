@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import type {
   AppointmentStatus as AppointmentStatusEnum,
   AppointmentType as AppointmentTypeEnum,
+  BLOOD_GROUP_VALUES,
   FollowUpMethod as FollowUpMethodEnum,
   FollowUpOutcome as FollowUpOutcomeEnum,
   ReminderStatus as ReminderStatusEnum,
@@ -20,6 +21,7 @@ export type ReminderType = `${ReminderTypeEnum}`;
 export type ReminderStatus = `${ReminderStatusEnum}`;
 export type FollowUpMethod = `${FollowUpMethodEnum}`;
 export type FollowUpOutcome = `${FollowUpOutcomeEnum}`;
+export type BloodGroup = (typeof BLOOD_GROUP_VALUES)[number];
 
 export interface NavItem {
   label: string;
@@ -63,6 +65,7 @@ export interface AdminUserSummary {
   email?: string;
   role: UserRole;
   status: UserStatus;
+  mustChangePassword?: boolean;
   healthCentreId?: string;
   healthCentreName?: string;
   createdAt: string;
@@ -94,7 +97,7 @@ export interface PatientSummary {
   expectedDeliveryDate: string;
   gravidity?: number;
   parity?: number;
-  bloodGroup?: string;
+  bloodGroup?: BloodGroup;
   riskNote?: string;
   createdAt: string;
   updatedAt: string;

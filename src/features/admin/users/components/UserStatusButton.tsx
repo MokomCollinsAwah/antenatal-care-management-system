@@ -11,9 +11,13 @@ import type { ActionResult, UserStatus as UserStatusValue } from "@/types";
 export function UserStatusButton({
   userId,
   status,
+  userName,
+  className,
 }: {
   userId: string;
   status: UserStatusValue;
+  userName?: string;
+  className?: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -39,6 +43,8 @@ export function UserStatusButton({
         size="sm"
         loading={isPending}
         onClick={changeStatus}
+        className={className}
+        title={`${nextStatus === UserStatus.SUSPENDED ? "Suspend" : "Activate"}${userName ? ` ${userName}` : ""}`}
       >
         {nextStatus === UserStatus.SUSPENDED ? "Suspend" : "Activate"}
       </Button>

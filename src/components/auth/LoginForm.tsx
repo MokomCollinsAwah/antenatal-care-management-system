@@ -81,9 +81,16 @@ export function LoginForm({ callbackUrl, authError }: LoginFormProps) {
 
       const session = await getSession();
       const role = session?.user.role;
+      const mustChangePassword = session?.user.mustChangePassword;
 
       if (!role) {
         setFormError("Unable to start your session. Please try again.");
+        return;
+      }
+
+      if (mustChangePassword) {
+        router.replace("/change-password");
+        router.refresh();
         return;
       }
 
@@ -106,9 +113,11 @@ export function LoginForm({ callbackUrl, authError }: LoginFormProps) {
       className="mt-8 space-y-5"
       method="post"
       onSubmit={handleSubmit(onSubmit)}
+      noValidate
     >
       <Input
         label="Phone number or email"
+        required
         placeholder="Enter your phone number or email"
         autoComplete="username"
         error={errors.identifier?.message}
@@ -120,6 +129,9 @@ export function LoginForm({ callbackUrl, authError }: LoginFormProps) {
           className="block text-sm font-medium text-slate-700"
         >
           Password
+          <span className="ml-1 text-red-600" aria-hidden="true">
+            *
+          </span>
         </label>
         <div className="relative">
           <input
@@ -127,6 +139,7 @@ export function LoginForm({ callbackUrl, authError }: LoginFormProps) {
             type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
             autoComplete="current-password"
+            required
             aria-invalid={Boolean(errors.password)}
             aria-describedby={
               errors.password ? "login-password-error" : undefined

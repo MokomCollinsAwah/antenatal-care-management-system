@@ -59,6 +59,17 @@ export enum FollowUpOutcome {
   PENDING = "PENDING",
 }
 
+export const BLOOD_GROUP_VALUES = [
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "O+",
+  "O-",
+] as const;
+
 const toLabel = (value: string) =>
   value
     .toLowerCase()
@@ -78,6 +89,12 @@ export const REMINDER_TYPE_OPTIONS = enumOptions(ReminderType);
 export const REMINDER_STATUS_OPTIONS = enumOptions(ReminderStatus);
 export const FOLLOW_UP_METHOD_OPTIONS = enumOptions(FollowUpMethod);
 export const FOLLOW_UP_OUTCOME_OPTIONS = enumOptions(FollowUpOutcome);
+export const BLOOD_GROUP_OPTIONS = BLOOD_GROUP_VALUES.map((value) => ({
+  value,
+  label: value,
+}));
+
+export const DEFAULT_TEMPORARY_PASSWORD = "12345678";
 
 export const APP_NAME =
   process.env.APP_NAME ?? "Antenatal Care Management System";
