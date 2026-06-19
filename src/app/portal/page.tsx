@@ -253,8 +253,8 @@ export default async function PortalPage() {
               <CareList
                 title="Recent Appointments"
                 icon={CalendarDays}
-                items={recentAppointments.slice(0, 5)}
                 count={recentAppointments.length}
+                items={recentAppointments.slice(0, 5)}
                 emptyTitle="No recent appointments"
                 emptyDescription="Appointment history will appear here."
                 renderItem={(appointment) => (
@@ -293,7 +293,7 @@ export default async function PortalPage() {
                 renderItem={(record) => (
                   <CareListItem
                     title={record.supplementName}
-                    meta={`${record.dosage} · ${record.frequency}`}
+                    meta={`${record.dosage} · ${record.frequency} · ${formatDate(record.startDate)} to ${record.endDate ? formatDate(record.endDate) : "No end date"}`}
                     description={record.instructions}
                     accessory={<SupplementStatusBadge status={record.status} />}
                   />
