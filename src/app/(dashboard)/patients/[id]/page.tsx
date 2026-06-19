@@ -139,7 +139,14 @@ export default async function PatientDetailsPage({
             <RecordRow
               title={record.supplementName}
               meta={`${record.dosage} · ${record.frequency} · Starts ${formatDate(record.startDate)}`}
-              accessory={<SupplementStatusBadge status={record.status} />}
+              accessory={
+                <div className="flex flex-wrap items-center gap-3">
+                  <SupplementStatusBadge status={record.status} />
+                  <Link href={`/supplements/${record.id}/edit`} className="text-sm font-semibold text-teal-700">
+                    Edit
+                  </Link>
+                </div>
+              }
             />
           )}
         />

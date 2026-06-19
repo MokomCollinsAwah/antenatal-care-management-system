@@ -139,6 +139,15 @@ export async function findSupplements(scope: PatientScope, filters: ClinicalReco
   );
 }
 
+export async function findSupplementById(id: string, scope: PatientScope) {
+  await connectDB();
+  const records = await SupplementRecord.aggregate([
+    { $match: { _id: new Types.ObjectId(id) } },
+    ...basePipeline(scope, {}, "recordedById"),
+  ]);
+  return records[0] ?? null;
+}
+
 export async function findScans(scope: PatientScope, filters: ClinicalRecordFilters) {
   const match: Record<string, unknown> = {};
   if (filters.dateFrom || filters.dateTo) {
@@ -175,6 +184,18 @@ export async function findReminders(scope: PatientScope, filters: ClinicalRecord
 export async function createSupplementRecord(input: Record<string, unknown>) {
   await connectDB();
   return SupplementRecord.create(input);
+}
+
+export async function updateSupplementRecord(
+  id: string,
+  input: Record<string, unknown>,
+) {
+  await connectDB();
+  return SupplementRecord.findByIdAndUpdate(
+    id,
+    { $set: input },
+    { returnDocument: "after" },
+  );
 }
 
 export async function createScanRecord(input: Record<string, unknown>) {

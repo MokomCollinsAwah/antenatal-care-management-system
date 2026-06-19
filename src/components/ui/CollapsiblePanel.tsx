@@ -8,6 +8,7 @@ interface CollapsiblePanelProps {
   children: ReactNode;
   defaultOpen?: boolean;
   tone?: "default" | "teal";
+  count?: number;
 }
 
 export function CollapsiblePanel({
@@ -16,6 +17,7 @@ export function CollapsiblePanel({
   children,
   defaultOpen = false,
   tone = "default",
+  count,
 }: CollapsiblePanelProps) {
   return (
     <details
@@ -35,6 +37,11 @@ export function CollapsiblePanel({
           <Icon className="size-5" />
         </span>
         <h2 className="min-w-0 flex-1 text-base font-bold text-slate-900">{title}</h2>
+        {typeof count === "number" && (
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">
+            {count}
+          </span>
+        )}
         <ChevronDown className="size-5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
       </summary>
       <div className="border-t border-slate-100 px-5 py-5 sm:px-6">{children}</div>

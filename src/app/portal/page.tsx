@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import {
-  Activity,
   AlertTriangle,
   Bell,
   CalendarDays,
@@ -20,6 +19,7 @@ import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
+import { AppointmentStatusBadge } from "@/features/appointments/components/AppointmentStatusBadge";
 import { getCurrentPortalPatientProfile } from "@/features/patients/queries";
 import { getPortalAppointmentsForPatient } from "@/features/appointments/queries";
 import { getPortalVisitsForPatient } from "@/features/visits/queries";
@@ -37,6 +37,8 @@ import { formatDate, formatDateTime } from "@/lib/utils";
 import { runDashboardMaintenance } from "@/server/services/systemMaintenanceService";
 
 export const dynamic = "force-dynamic";
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 function byDateAsc<T>(records: T[], getValue: (record: T) => string | undefined) {
   return [...records].sort((a, b) => {
@@ -81,8 +83,24 @@ export default async function PortalPage() {
   const missedAppointments = appointments.filter(
     (appointment) => appointment.status === AppointmentStatus.MISSED,
   );
+  const recentAppointments = byDateDesc(appointments, (appointment) => appointment.scheduledDateTime);
   const activeSupplements = supplements.filter((record) => record.status === SupplementStatus.ACTIVE);
+  const supplementEndDates = activeSupplements
+    .map((record) => record.endDate)
+    .filter((endDate): endDate is string => Boolean(endDate));
+  const supplementDaysLeft = supplementEndDates.length
+    ? Math.min(
+        ...supplementEndDates.map((endDate) =>
+          Math.max(0, Math.ceil((new Date(endDate).getTime() - now.getTime()) / MS_PER_DAY)),
+        ),
+      )
+    : 0;
+  const supplementDaysValue =
+    activeSupplements.length === 0
+      ? "0 days"
+      : `${supplementDaysLeft} day${supplementDaysLeft === 1 ? "" : "s"}`;
   const recentVisits = byDateDesc(visits, (visit) => visit.visitDate);
+  const recentScans = byDateDesc(scans, (scan) => scan.scanDate);
   const upcomingScans = byDateAsc(
     scans.filter((scan) => scan.nextScanDate && new Date(scan.nextScanDate) >= now),
     (scan) => scan.nextScanDate,
@@ -104,7 +122,7 @@ export default async function PortalPage() {
       value: nextAppointment ? formatDate(nextAppointment.scheduledDateTime) : "Not scheduled",
       icon: CalendarDays,
     },
-    { title: "Active Supplements", value: activeSupplements.length, icon: Activity },
+    { title: "Supplement Days Left", value: supplementDaysValue, icon: Pill },
     { title: "Open Reminders", value: openReminders.length, icon: Bell },
     {
       title: "Upcoming Scan",
@@ -233,9 +251,26 @@ export default async function PortalPage() {
                 )}
               />
               <CareList
+                title="Recent Appointments"
+                icon={CalendarDays}
+                items={recentAppointments.slice(0, 5)}
+                count={recentAppointments.length}
+                emptyTitle="No recent appointments"
+                emptyDescription="Appointment history will appear here."
+                renderItem={(appointment) => (
+                  <CareListItem
+                    title={appointment.appointmentType.replaceAll("_", " ")}
+                    meta={`${formatDateTime(appointment.scheduledDateTime)} · ${appointment.healthCentreName}`}
+                    description={appointment.reason || appointment.notes}
+                    accessory={<AppointmentStatusBadge status={appointment.status} />}
+                  />
+                )}
+              />
+              <CareList
                 title="Recent Visits"
                 icon={Stethoscope}
                 items={recentVisits.slice(0, 5)}
+                count={recentVisits.length}
                 emptyTitle="No recent visits"
                 emptyDescription="Visit records will appear after attended appointments."
                 renderItem={(visit) => (
@@ -265,15 +300,16 @@ export default async function PortalPage() {
                 )}
               />
               <CareList
-                title="Upcoming Scans"
+                title="Recent Scans"
                 icon={ScanLine}
-                items={upcomingScans.slice(0, 5)}
-                emptyTitle="No upcoming scans"
-                emptyDescription="Future scan dates will appear here."
+                items={recentScans.slice(0, 5)}
+                count={recentScans.length}
+                emptyTitle="No recent scans"
+                emptyDescription="Scan records will appear here."
                 renderItem={(scan) => (
                   <CareListItem
                     title={scan.scanType}
-                    meta={`Last scan: ${formatDate(scan.scanDate)}`}
+                    meta={formatDate(scan.scanDate)}
                     description={scan.nextScanDate ? `Next scan: ${formatDate(scan.nextScanDate)}` : undefined}
                   />
                 )}
@@ -348,6 +384,7 @@ function CareList<T>({
   title,
   icon: Icon,
   items,
+  count,
   emptyTitle,
   emptyDescription,
   renderItem,
@@ -355,12 +392,13 @@ function CareList<T>({
   title: string;
   icon: typeof CalendarDays;
   items: T[];
+  count?: number;
   emptyTitle: string;
   emptyDescription: string;
   renderItem: (item: T) => ReactNode;
 }) {
   return (
-    <CollapsiblePanel title={title} icon={Icon} defaultOpen={items.length > 0}>
+    <CollapsiblePanel title={title} icon={Icon} count={count} defaultOpen={items.length > 0}>
       {items.length ? (
         <div className="divide-y divide-slate-100">
           {items.map((item, index) => (

@@ -33,7 +33,12 @@ export function SupplementTable({ supplements }: { supplements: SupplementSummar
               <td data-label="End Date" className="px-5 py-4 text-slate-600">{record.endDate ? formatDate(record.endDate) : "—"}</td>
               <td data-label="Status" className="px-5 py-4"><SupplementStatusBadge status={record.status} /></td>
               <td data-label="Recorded By" className="px-5 py-4 text-slate-600">{record.recordedByName}</td>
-              <td data-label="Actions" className="px-5 py-4 text-right"><Link href={`/patients/${record.patientId}`} className="font-semibold text-teal-700 hover:text-teal-900">View Patient</Link></td>
+              <td data-label="Actions" className="px-5 py-4 text-right">
+                <div className="flex flex-col items-end gap-2">
+                  <Link href={`/supplements/${record.id}/edit`} className="font-semibold text-teal-700 hover:text-teal-900">Edit</Link>
+                  <Link href={`/patients/${record.patientId}`} className="font-semibold text-slate-600 hover:text-slate-900">View Patient</Link>
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>

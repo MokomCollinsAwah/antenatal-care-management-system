@@ -207,9 +207,12 @@ export const createSupplementRecordSchema = z.object({
   dosage: requiredText("Dosage is required"),
   frequency: requiredText("Frequency is required"),
   startDate: requiredDate("Start date is required"),
-  endDate: optionalDate,
+  endDate: requiredDate("End date is required"),
   instructions: optionalText,
   status: z.enum(SupplementStatus),
+}).refine((data) => data.endDate >= data.startDate, {
+  message: "End date must be after or equal to start date",
+  path: ["endDate"],
 });
 
 export const createScanRecordSchema = z.object({

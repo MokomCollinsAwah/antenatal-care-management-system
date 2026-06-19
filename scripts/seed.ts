@@ -256,6 +256,7 @@ async function seed() {
           dosage: "1 tablet",
           frequency: "Once daily after meals",
           startDate: daysFromNow(-10),
+          endDate: daysFromNow(20),
           instructions: "Take with clean water after food.",
           status: SupplementStatus.ACTIVE,
           recordedById: healthWorker._id,

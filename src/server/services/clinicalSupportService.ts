@@ -16,8 +16,10 @@ import {
   findReminderById,
   findReminders,
   findScans,
+  findSupplementById,
   findSupplements,
   updateReminderStatus,
+  updateSupplementRecord,
 } from "@/server/repositories/clinicalSupportRepository";
 import { getPatientOptionsForAppointments, buildScope, type CurrentCareUser } from "@/server/services/appointmentService";
 import { recordAdminAudit } from "@/server/services/auditLogService";
@@ -53,19 +55,8 @@ function patientName(record: AggregateRecord) {
   return record.patientUser.fullName;
 }
 
-async function assertPatientAllowed(patientId: string, user: CurrentCareUser) {
-  if (!Types.ObjectId.isValid(patientId)) {
-    throw new AdminServiceError("Patient not found.", "NOT_FOUND");
-  }
-  const patients = await getPatientOptionsForAppointments(user);
-  const patient = patients.find((item) => item.value === patientId);
-  if (!patient) throw new AdminServiceError("Patient not found.", "NOT_FOUND");
-  return patient;
-}
-
-export async function listSupplements(user: CurrentCareUser, filters: ClinicalRecordFilters) {
-  const records = (await findSupplements(buildScope(user), filters)) as AggregateRecord[];
-  return records.map((record): SupplementSummary => ({
+function serializeSupplement(record: AggregateRecord): SupplementSummary {
+  return {
     id: record._id.toString(),
     patientId: record.patientId.toString(),
     patientName: patientName(record),
@@ -81,7 +72,36 @@ export async function listSupplements(user: CurrentCareUser, filters: ClinicalRe
     status: record.status as SupplementStatus,
     recordedByName: record.recordedBy?.fullName ?? "—",
     createdAt: record.createdAt.toISOString(),
-  }));
+  };
+}
+
+async function assertPatientAllowed(patientId: string, user: CurrentCareUser) {
+  if (!Types.ObjectId.isValid(patientId)) {
+    throw new AdminServiceError("Patient not found.", "NOT_FOUND");
+  }
+  const patients = await getPatientOptionsForAppointments(user);
+  const patient = patients.find((item) => item.value === patientId);
+  if (!patient) throw new AdminServiceError("Patient not found.", "NOT_FOUND");
+  return patient;
+}
+
+export async function listSupplements(user: CurrentCareUser, filters: ClinicalRecordFilters) {
+  const records = (await findSupplements(buildScope(user), filters)) as AggregateRecord[];
+  return records.map(serializeSupplement);
+}
+
+export async function getSupplementForUser(id: string, user: CurrentCareUser) {
+  if (!Types.ObjectId.isValid(id)) {
+    throw new AdminServiceError("Supplement record not found.", "NOT_FOUND");
+  }
+  const record = (await findSupplementById(
+    id,
+    buildScope(user),
+  )) as AggregateRecord | null;
+  if (!record) {
+    throw new AdminServiceError("Supplement record not found.", "NOT_FOUND");
+  }
+  return serializeSupplement(record);
 }
 
 export async function listScans(user: CurrentCareUser, filters: ClinicalRecordFilters) {
@@ -170,6 +190,48 @@ export async function createSupplement(input: {
   });
   await recordAdminAudit({ actorId: user.id, action: "SUPPLEMENT_CREATED", entityType: "SupplementRecord", entityId: supplement.id, description: `Created supplement record for ${patient.label}.` });
   return { id: supplement.id };
+}
+
+export async function updateSupplement(
+  id: string,
+  input: {
+    patientId: string;
+    supplementName: string;
+    dosage: string;
+    frequency: string;
+    startDate: Date;
+    endDate: Date;
+    instructions?: string;
+    status: SupplementStatus;
+  },
+  user: CurrentCareUser,
+) {
+  if (!Types.ObjectId.isValid(id)) {
+    throw new AdminServiceError("Supplement record not found.", "NOT_FOUND");
+  }
+  const existing = await getSupplementForUser(id, user);
+  const patient = await assertPatientAllowed(input.patientId, user);
+  const supplement = await updateSupplementRecord(id, {
+    patientId: new Types.ObjectId(input.patientId),
+    supplementName: input.supplementName.trim(),
+    dosage: input.dosage.trim(),
+    frequency: input.frequency.trim(),
+    startDate: input.startDate,
+    endDate: input.endDate,
+    instructions: input.instructions?.trim() || undefined,
+    status: input.status,
+  });
+  if (!supplement) {
+    throw new AdminServiceError("Supplement record not found.", "NOT_FOUND");
+  }
+  await recordAdminAudit({
+    actorId: user.id,
+    action: "SUPPLEMENT_UPDATED",
+    entityType: "SupplementRecord",
+    entityId: id,
+    description: `Updated supplement record for ${patient.label}.`,
+  });
+  return { id: existing.id };
 }
 
 export async function createScan(input: {

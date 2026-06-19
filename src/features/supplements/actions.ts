@@ -6,7 +6,10 @@ import { getCareUser } from "@/features/appointments/queries";
 import { SupplementStatus } from "@/lib/constants";
 import { createSupplementRecordSchema } from "@/lib/validations";
 import { AdminServiceError } from "@/server/services/adminServiceError";
-import { createSupplement } from "@/server/services/clinicalSupportService";
+import {
+  createSupplement,
+  updateSupplement,
+} from "@/server/services/clinicalSupportService";
 import type { ActionResult } from "@/types";
 
 type Input = z.input<typeof createSupplementRecordSchema>;
@@ -25,6 +28,28 @@ export async function createSupplementAction(input: Input): Promise<ActionResult
     return { success: true, message: "Supplement record created successfully.", data };
   } catch (error) {
     return actionFailure(error, "Supplement action failed");
+  }
+}
+
+export async function updateSupplementAction(
+  id: string,
+  input: Input,
+): Promise<ActionResult<{ id: string }>> {
+  const parsed = createSupplementRecordSchema.safeParse(input);
+  if (!parsed.success) return validationFailure(parsed.error.flatten().fieldErrors);
+  try {
+    const data = await updateSupplement(
+      id,
+      { ...parsed.data, status: parsed.data.status as SupplementStatus },
+      await getCareUser(),
+    );
+    revalidatePath("/supplements");
+    revalidatePath("/reminders");
+    revalidatePath(`/supplements/${id}/edit`);
+    revalidatePath(`/patients/${parsed.data.patientId}`);
+    return { success: true, message: "Supplement record updated successfully.", data };
+  } catch (error) {
+    return actionFailure(error, "Supplement update failed");
   }
 }
 

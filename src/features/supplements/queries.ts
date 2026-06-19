@@ -1,6 +1,9 @@
 import { getCareUser } from "@/features/appointments/queries";
 import { UserRole } from "@/lib/constants";
-import { listSupplements } from "@/server/services/clinicalSupportService";
+import {
+  getSupplementForUser,
+  listSupplements,
+} from "@/server/services/clinicalSupportService";
 import type { ClinicalRecordFilters } from "@/types";
 
 export async function getSupplements(filters: ClinicalRecordFilters) {
@@ -9,6 +12,10 @@ export async function getSupplements(filters: ClinicalRecordFilters) {
 
 export async function getSupplementsForPatient(patientId: string) {
   return listSupplements(await getCareUser(), { patientId });
+}
+
+export async function getSupplementDetails(id: string) {
+  return getSupplementForUser(id, await getCareUser());
 }
 
 export async function getPortalSupplementsForPatient(patientId: string) {
